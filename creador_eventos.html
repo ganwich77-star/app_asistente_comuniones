@@ -793,14 +793,14 @@
     <header
         style="padding: 10px 30px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(11, 15, 25, 0) 100%); border-bottom: 1px solid #2d3748; margin-bottom: 10px; text-align: center;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
-            <img src="./assets/logo_verde.webp" alt="Pujalte"
+            <img id="brandLogo" src="./assets/logo_verde.webp" alt="Brand Logo"
                 style="height: 80px; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.3));">
             <div style="display: flex; flex-direction: column; line-height: 1.1; text-align: left;">
                 <h1
                     style="font-size: 1.8rem; font-weight: 900; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
                     CREADOR DE APPS
                 </h1>
-                <div
+                <div id="brandPoweredBy"
                     style="font-size: 0.6rem; color: #10b981; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; font-weight: 800; margin-top: 2px;">
                     POWERED BY PUJALTE CREATIVESTUDIO
                 </div>
@@ -1096,9 +1096,7 @@
                                         style="margin:0 !important; font-size: 0.65rem !important; min-width: 60px;">Hosting:</label>
                                     <select id="domainSelect"
                                         style="flex:1; background: #0b0f19; border: 1px solid #2d3748; color: white; padding: 8px; border-radius: 8px; font-size: 0.75rem;">
-                                        <option value="https://apps.pujaltefotografia.es/comuniones2026">
-                                            pujaltefotografia.es</option>
-                                        <option value="https://basecode.es/comuniones2026">basecode.es</option>
+                                        <!-- Opciones cargadas dinámicamente -->
                                     </select>
                                 </div>
 
@@ -1163,7 +1161,7 @@
                     <div id="previewContainer" onclick="event.stopPropagation();" style="cursor: default;">
                         <iframe id="previewFrame" src="about:blank"></iframe>
                         <div class="phone-dock">
-                            <img src="./assets/logo_verde.webp" class="dock-logo" alt="Pujalte Logo">
+                            <img id="dockLogo" src="./assets/logo_verde.webp" class="dock-logo" alt="Brand Logo">
                         </div>
                     </div>
                 </div>
@@ -1187,8 +1185,55 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <!-- UTILIDADES UI PREMIUM (LIMPIO) -->
-    <script>
-        // No se requieren funciones de acordeón (Interfaz Plana)
+    <!-- DYNAMIC BRANDING LOGIC -->
+    <script type="module">
+        import { getCurrentBrand, BRANDS } from './js/brands.js';
+
+        function applyBranding() {
+            const brand = getCurrentBrand();
+            console.log("Aplicando branding:", brand.name);
+
+            // Actualizar Header
+            const logo = document.getElementById('brandLogo');
+            const poweredBy = document.getElementById('brandPoweredBy');
+            const dockLogo = document.getElementById('dockLogo');
+
+            if (logo) logo.src = brand.logo;
+            if (poweredBy) poweredBy.innerText = brand.poweredBy;
+            if (dockLogo) dockLogo.src = brand.logo;
+
+            // Actualizar Selector de Dominios
+            const domainSelect = document.getElementById('domainSelect');
+            if (domainSelect) {
+                domainSelect.innerHTML = '';
+
+                // Opción del dominio actual del brand
+                const optBrand = document.createElement('option');
+                optBrand.value = `https://${brand.domain}/${brand.eventFolder}`;
+                optBrand.innerText = brand.domain;
+                domainSelect.appendChild(optBrand);
+
+                // Si estamos en Pujalte, mostrar también opción para Basecode (como herramienta de gestión)
+                if (brand.id === 'pujalte') {
+                    const optBasecode = document.createElement('option');
+                    optBasecode.value = `https://${BRANDS.basecode.domain}/${BRANDS.basecode.eventFolder}`;
+                    optBasecode.innerText = BRANDS.basecode.domain;
+                    domainSelect.appendChild(optBasecode);
+                }
+            }
+
+            // Restricción de herramientas de gestión
+            if (!brand.managementTools) {
+                console.warn("Herramientas de gestión restringidas para este dominio.");
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    // Ocultar sección de registros si no es Pujalte
+                    // sidebar.style.display = 'none'; 
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', applyBranding);
     </script>
 
 
