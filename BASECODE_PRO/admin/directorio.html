@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Eventos - Basecode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/webp" href="../assets/corazon_01.webp">
+    <style>
+        :root {
+            --bg: #111827;
+            --card: #1f2937;
+            --text: #f9fafb;
+            --accent: #10b981;
+            --err: #ef4444;
+            --input-bg: #374151;
+            --input-border: #4b5563;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 20px 0;
+            color: var(--accent);
+        }
+
+        .header-info {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        /* Buscador */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid var(--input-border);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 15px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.5;
+        }
+
+        .parent-info {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin: 5px 0;
+        }
+
+
+        .view-btn {
+            background: var(--card);
+            border: 2px solid var(--input-border);
+            color: var(--text);
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .photographer-logo {
+            width: 180px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .event-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .event-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .event-id {
+            font-size: 0.7rem;
+            background: var(--input-bg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: #9ca3af;
+            font-family: monospace;
+        }
+
+        .event-date {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin: 5px 0 15px;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .photo-thumb {
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .photo-thumb:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .url-section {
+            margin-top: 15px;
+            padding: 12px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .url-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .url-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            word-break: break-all;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .url-link:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        .url-input {
+            width: 100%;
+            box-sizing: border-box;
+            /* IMPORTANTE para que el padding no sume al ancho */
+            background: #2D3748;
+            /* Un poco más oscuro para que resalte */
+            border: 1px solid var(--input-border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            text-overflow: ellipsis;
+            /* Puntos suspensivos si es muy largo */
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+
+        .copy-btn {
+            margin-top: 8px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #0d9668;
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .delete-btn-small {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .delete-btn-small:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .qr-section {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .qr-img {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: white;
+            padding: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--card);
+            border-radius: 20px;
+            margin-top: 40px;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--input-border);
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        /* Modal para foto grande */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .photo-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+        }
+
+        /* Modal Edición */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .edit-card {
+            background: var(--card);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .edit-card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .edit-card::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .edit-card h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-family: 'Pacifico', cursive;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-save {
+            flex: 1;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: white;
+            border: 1px solid #374151;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .edit-btn-small {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent);
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn-small:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Google Maps Places API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+  <script type="module" crossorigin src="../js/directorio.js"></script>
+  <link rel="modulepreload" crossorigin href="../js/modulepreload-polyfill.js">
+  <link rel="modulepreload" crossorigin href="../js/config.js">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-top">
+            <img id="photographer-logo" src="../assets/logo basecode.png" alt="Logo" class="photographer-logo">
+            <h1 id="directory-title">Directorio de Eventos</h1>
+            <p style="opacity: 0.6; margin-top: -10px;">Gestión de Clientes y Aplicaciones</p>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input"
+                placeholder="🔍 Buscar por protagonista, contacto, fecha o ID..." onkeyup="filterEvents()">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div id="loading" class="loading">
+            ⏳ Cargando eventos desde Firebase...
+        </div>
+
+        <div id="events-container" class="events-grid"></div>
+
+        <!-- CONFIGURACIÓN MENSAJE WHATSAPP -->
+        <div class="url-section" style="margin-top: 40px; border-left-color: #25D366; background: #075e5420;">
+            <div class="url-label" style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #25D366;">📱 Personalizar Mensaje WhatsApp General</span>
+                <button onclick="saveCustomWSMessage()"
+                    style="background: #25D366; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;">Guardar
+                    Mensaje</button>
+            </div>
+            <textarea id="custom-wa-msg"
+                style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(37, 211, 102, 0.3); color: white; padding: 10px; border-radius: 8px; font-family: inherit; font-size: 0.85rem; min-height: 120px; margin-top: 10px; resize: vertical;"></textarea>
+            <p style="font-size: 0.7rem; opacity: 0.6; margin-top: 5px;">Usa <b>{{NOMBRE}}</b> para el niño/a y
+                <b>{{URL}}</b> para el enlace de la App.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Basecode - Sistema de Gestión de Eventos</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">Powered by Firebase & QRServer</p>
+        </div>
+    </div>
+
+    <!-- Modal para foto grande -->
+    <div id="photo-modal" class="photo-modal" onclick="closePhotoModal()">
+        <img id="modal-img" src="" alt="Foto ampliada">
+    </div>
+
+    <!-- Modal para edición de datos -->
+    <div id="edit-modal" class="edit-modal">
+        <div class="edit-card">
+            <h2>Editar Cliente</h2>
+            <div class="form-group">
+                <label>ID del Evento (Inalterable)</label>
+                <input type="text" id="edit-event-id" readonly
+                    style="opacity: 0.6; background: rgba(0,0,0,0.1); cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label>Nombre Protagonista</label>
+                <input type="text" id="edit-protagonist">
+            </div>
+
+            <div class="form-group">
+                <label>Nombre Contacto (Padre/Madre)</label>
+                <input type="text" id="edit-parent">
+            </div>
+
+            <div class="form-group">
+                <label>DNI Contacto</label>
+                <input type="text" id="edit-dni">
+            </div>
+
+            <div class="form-group">
+                <label>Subtítulo de la App (Ej: Mi Primera Comunión)</label>
+                <input type="text" id="edit-subtitle">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Fecha del Evento</label>
+                    <input type="date" id="edit-date">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono (WhatsApp)</label>
+                    <input type="tel" id="edit-phone">
+                </div>
+            </div>
+
+            <h3
+                style="color: var(--accent); border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 5px; margin-top: 25px;">
+                ⛪ Ceremonia</h3>
+            <div class="form-group">
+                <label>Lugar / Iglesia (Buscador Google)</label>
+                <input type="text" id="edit-ceremony-place" placeholder="Busca la iglesia...">
+                <input type="hidden" id="edit-ceremony-maps">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Localidad</label>
+                    <input type="text" id="edit-ceremony-loc">
+                </div>
+                <div class="form-group">
+                    <label>Hora</label>
+                    <input type="time" id="edit-ceremony-time">
+                </div>
+            </div>
+
+            <h3
+                style="color: var(--accent); border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 5px; margin-top: 25px;">
+                🍰 Banquete</h3>
+            <div class="form-group">
+                <label>Restaurante / Lugar (Buscador Google)</label>
+                <input type="text" id="edit-banquet-place" placeholder="Busca el restaurante...">
+                <input type="hidden" id="edit-banquet-maps">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Localidad</label>
+                    <input type="text" id="edit-banquet-loc">
+                </div>
+                <div class="form-group">
+                    <label>Hora</label>
+                    <input type="time" id="edit-banquet-time">
+                </div>
+            </div>
+
+            <div class="edit-actions">
+                <button class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveEventChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+{
+    "hosting": {
+        "public": ".",
+        "ignore": [
+            "firebase.json",
+            "firebase-debug.log",
+            "**/.*",
+            "**/node_modules/**",
+            "01_HISTORIAL_Y_BACKUPS/**",
+            "02_DOCUMENTACION/**",
+            "03_HERRAMIENTAS_Y_TESTS/**",
+            "dist/**",
+            "public/**",
+            "vite.config.js",
+            "package.json",
+            "package-lock.json",
+            "INSTRUCCIONES.md",
+            "send_mail.php"
+        ],
+        "rewrites": [
+            {
+                "source": "/comuniones2026/**",
+                "destination": "/index.html"
+            },
+            {
+                "source": "/**",
+                "destination": "/index.html"
+            }
+        ]
+    }
+}

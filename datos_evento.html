@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Configura tu Invitación 🌿">
+    <meta property="og:description" content="Formulario rápido para los datos de tu evento.">
+    <title>Configuración rápida - Creative Pujalte Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/webp" href="./assets/corazon_01.webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script type="module" src="js/datos_evento.js"></script>
+    <style>
+        :root {
+            --bg: #111827;
+            /* Fondo muy oscuro (casi negro) */
+            --card: #1f2937;
+            /* Gris oscuro para la tarjeta */
+            --text: #f9fafb;
+            /* Texto blanco/gris claro */
+            --accent: #10b981;
+            /* Verde esmeralda (se mantiene igual, resalta bien en oscuro) */
+            --err: #ef4444;
+            --wa: #25d366;
+            --input-bg: #374151;
+            /* Fondo para inputs */
+            --input-border: #4b5563;
+            /* Borde para inputs */
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, var(--card), #1a202c);
+            padding: 35px 30px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 15px 0 10px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+
+        input {
+            padding: 10px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+
+        input.invalid {
+            border-color: var(--err);
+            background: #451a1a;
+        }
+
+        .privacy-area {
+            margin: 15px 0;
+            padding: 12px;
+            background: var(--input-bg);
+            border-radius: 15px;
+            border: 1px solid var(--input-border);
+        }
+
+        .check-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .check-line input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .link-policy {
+            color: var(--accent);
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+
+        #policy-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #9ca3af;
+        }
+
+        #policy-content.open {
+            max-height: 300px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            width: 100%;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            font-size: 1rem;
+        }
+
+        /* --- ESTILOS FOOTER DENTRO DE LA TARJETA --- */
+        .card footer {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(16, 185, 129, 0.1);
+            text-align: center;
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        /* --- ESTILOS PARA UPLOAD DE FOTOS --- */
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            aspect-ratio: 1 / 1;
+            border: 2px dashed var(--input-border);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--input-bg);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .upload-box:hover {
+            border-color: var(--accent);
+            background-color: var(--bg);
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-prompt {
+            color: #9ca3af;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .upload-prompt span {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .btn-submit:disabled {
+            background: #5f9571;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .error-txt {
+            color: var(--err);
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .footer-logo {
+            height: 160px;
+            width: auto;
+            margin: 0 auto 16px;
+        }
+
+        .footer-cursive {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.125rem;
+            margin: 0;
+            margin-bottom: 16px;
+        }
+
+        .footer-link {
+            display: block;
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--text);
+        }
+
+        .footer-powered {
+            margin-top: 24px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .footer-powered span {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* PANTALLA DE ÉXITO */
+        #success-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+            border-radius: 24px;
+        }
+
+        .success-logo {
+            width: 260px;
+            /* Ajusta según necesidad */
+            margin-bottom: 0px;
+        }
+
+        /* --- ESTILOS PARA EL MODAL DE RECORTE --- */
+        #cropper-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 20;
+            display: none;
+            /* Oculto por defecto */
+            flex-direction: column;
+            /* Para alinear el botón debajo */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #cropper-container {
+            background: var(--card);
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 90vw;
+            max-height: 70vh;
+            overflow: hidden;
+            /* Para contener la imagen del cropper */
+        }
+
+        #cropper-container img {
+            max-width: 100%;
+            display: block;
+            /* Requerido por Cropper.js */
+        }
+
+        #crop-btn {
+            margin-top: 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .success-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+
+        @media (max-width: 400px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script type="module" crossorigin src="./js/datos_evento.js"></script>
+    <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
+    <link rel="modulepreload" crossorigin href="./js/config.js">
+</head>
+
+<body>
+
+    <div class="contenedor">
+        <div class="card">
+            <!-- PANTALLA DE ÉXITO OCULTA -->
+            <div id="success-overlay">
+                <img id="form-logo-success" src="./assets/logo_verde.webp" class="success-logo photog-logo-dynamic"
+                    alt="Logo">
+                <p id="success-slogan" class="footer-cursive"
+                    style="font-size: 0.9rem; margin-top: 0; margin-bottom: 20px; opacity: 0.8; display: none;"></p>
+                <div class="success-icon">✅</div>
+                <h2 style="border:none; text-align:center; padding:0;">¡Muchas Gracias!</h2>
+                <p>Hemos recibido los datos de tu evento correctamente.</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">En breve nos pondremos manos a la obra para crear tu
+                    aplicación personalizada.</p>
+                <p style="margin-top:20px; font-size: 0.7rem; color: var(--accent); font-weight: bold;">Creative Pujalte
+                    Studio</p>
+            </div>
+
+            <!-- PANTALLA LEGAL INICIAL (GATE) -->
+            <div id="legal-gate"
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px 0; box-sizing: border-box; border-radius: 24px;">
+
+                <h1 style="margin-bottom: 30px; font-size: 3.5rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
+                    ¡Hola!</h1>
+
+
+
+                <h2 style="border:none; padding:0; margin-bottom: 10px; font-size: 1.5rem; color: var(--text);">
+                    Bienvenid@</h2>
+
+                <p style="font-size: 0.85rem; margin-bottom: 30px; opacity: 0.7; max-width: 300px; line-height: 1.5;">
+                    Para comenzar a configurar tu invitación, es necesario aceptar nuestra política de privacidad.
+                </p>
+
+                <div class="privacy-area"
+                    style="width: 100%; text-align: left; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+                    <label class="check-line" style="justify-content: center; opacity: 0.9;">
+                        <input type="checkbox" id="legal-check">
+                        <span style="font-size: 0.75rem; letter-spacing: 0.5px;">ACEPTO LA POLÍTICA DE PRIVACIDAD</span>
+                    </label>
+                </div>
+
+                <button type="button" id="btn-start" class="btn-submit" disabled
+                    style="opacity: 0.3; margin-top: 20px; transform: scale(0.95);">Comenzar</button>
+
+
+            </div>
+
+            <form id="mainForm" style="display: none;" novalidate>
+                <h1 style="margin-bottom: 20px; font-size: 2.8rem; text-align: center;">¡Hola!</h1>
+                <h2>✨ Protagonista</h2>
+                <div class="grid">
+                    <div class="field"><label>Nombre</label><input type="text" id="n" placeholder="Nora" required></div>
+                    <div class="field"><label>Apellidos</label><input type="text" id="ln" placeholder="Pérez G."
+                            required></div>
+                </div>
+                <div class="field"><label>Fecha del Evento</label><input type="date" id="f" required></div>
+
+                <h2>👤 Datos de Contacto</h2>
+                <div class="field"><label>Nombre Padre/Madre / Tutor</label><input type="text" id="parentName"
+                        placeholder="Nombre completo" required></div>
+                <div class="grid">
+                    <div class="field"><label>DNI</label><input type="text" id="parentDNI" placeholder="12345678X"
+                            required></div>
+                    <div class="field"><label>Teléfono</label><input type="tel" id="parentPhone"
+                            placeholder="600 000 000" required></div>
+                </div>
+
+                <h2>⛪ Ceremonia</h2>
+                <div class="field"><label>Lugar</label><input type="text" id="cl" placeholder="Iglesia de..." required>
+                </div>
+                <div class="grid">
+                    <div class="field"><label>Hora</label><input type="time" id="ch" required></div>
+                    <div class="field"><label>Localidad</label><input type="text" id="clo" placeholder="Murcia" required
+                            pattern="[a-zA-ZÀ-ÿ0-9\s']+" title="Se permiten letras, números y espacios."></div>
+                </div>
+
+                <h2>🍰 Banquete</h2>
+                <div class="field"><label>Lugar</label><input type="text" id="bl" placeholder="Restaurante..." required>
+                </div>
+                <div class="grid">
+                    <div class="field"><label>Hora</label><input type="time" id="bh" required></div>
+                    <div class="field"><label>Localidad</label><input type="text" id="blo" placeholder="Ceutí" required
+                            pattern="[a-zA-ZÀ-ÿ0-9\s']+" title="Se permiten letras, números y espacios."></div>
+                </div>
+
+                <h2>📷 Fotos de la Intro</h2>
+                <div class="photo-upload-grid">
+                    <label class="upload-box" id="upload-box-1" for="foto1">
+                        <span class="upload-prompt"><span>🖼️</span>Foto 1</span><input type="file" id="foto1"
+                            accept="image/*" onchange="handleImageUpload(event, 1)">
+                    </label>
+                    <label class="upload-box" id="upload-box-2" for="foto2">
+                        <span class="upload-prompt"><span>🖼️</span>Foto 2</span><input type="file" id="foto2"
+                            accept="image/*" onchange="handleImageUpload(event, 2)">
+                    </label>
+                    <label class="upload-box" id="upload-box-3" for="foto3">
+                        <span class="upload-prompt"><span>🖼️</span>Foto 3</span><input type="file" id="foto3"
+                            accept="image/*" onchange="handleImageUpload(event, 3)">
+                    </label>
+                </div>
+
+                <div class="privacy-area">
+                    <label class="check-line">
+                        <input type="checkbox" id="p" required>
+                        <span>Acepto la <span class="link-policy" onclick="togglePolicy(event)">política de
+                                privacidad</span></span>
+                    </label>
+                    <div id="policy-content">
+                        <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 10px;">Fecha de actualización:
+                            26/01/2026</p>
+                        <p>Nos tomamos muy en serio la privacidad. A continuación, explicamos cómo tratamos la
+                            información.</p>
+
+                        <p><strong>1. Responsable:</strong> La familia organizadora y Creative Pujalte Studio (hosting).
+                        </p>
+
+                        <p><strong>2. Datos que Recogemos:</strong></p>
+                        <ul style="padding-left: 20px; list-style-type: disc; margin: 5px 0 10px;">
+                            <li>Datos de contacto y asistencia (RSVP).</li>
+                            <li>Imágenes para la galería (si aplica).</li>
+                            <li>Datos técnicos de navegación.</li>
+                        </ul>
+
+                        <p><strong>3. Finalidad:</strong> Gestionar la asistencia, organizar el banquete, preferencias
+                            alimentarias y compartir fotos del evento.</p>
+
+                        <p><strong>4. Conservación:</strong> Los datos se borrarán tras la finalización del evento
+                            (01/07/2026).</p>
+
+                        <p><strong>5. Derechos:</strong> Puedes acceder, rectificar o solicitar la eliminación de tus
+                            datos contactando con los organizadores.</p>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="send()">Enviar</button>
+                <p id="err" class="error-txt">⚠️ Por favor, rellena todo y acepta la privacidad.</p>
+            </form>
+            <footer>
+                <img id="form-logo-footer" src="./assets/logo_verde.webp" alt="Creative Pujalte Studio Logo"
+                    class="footer-logo photog-logo-dynamic">
+                <p id="footer-slogan" class="footer-cursive" style="display: none;"></p>
+                <a href="https://instagram.com/pujaltefotografia" target="_blank" class="footer-link">
+                    @pujaltefotografia
+                </a>
+                <p class="footer-powered">Powered by <span>Creative Pujalte Studio</span></p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- MODAL PARA RECORTAR IMAGEN -->
+    <div id="cropper-modal">
+        <div id="cropper-container"><img id="cropper-image"></div>
+        <button id="crop-btn">Recortar y Usar</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Asistente Digital Pujalte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --accent: #10b981;
+            --card: #1e293b;
+            --text: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fondo dinámico */
+        .bg-glow {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #064e3b 0%, transparent 70%);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 220px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+        }
+
+        .portal-card {
+            background: var(--card);
+            padding: 40px 30px;
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--accent);
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-weight: 700;
+            padding-left: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid #334155;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .links {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .link-item {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .link-item:hover {
+            color: var(--accent);
+        }
+
+        .link-item b {
+            color: white;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+    </style>
+  <script type="module" crossorigin src="../js/acceso.js"></script>
+  <link rel="modulepreload" crossorigin href="../js/modulepreload-polyfill.js">
+  <link rel="modulepreload" crossorigin href="../js/config.js">
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <img src="assets/images/logo basecode.png" class="logo" alt="Logo">
+
+        <div class="portal-card">
+            <h1>Bienvenido</h1>
+
+            <div class="input-group">
+                <label>Código de Evento (ID)</label>
+                <input type="text" id="event-id" list="event-list" placeholder="ej: adriana-2026" autocomplete="off">
+                <datalist id="event-list">
+                    <!-- Los eventos se cargarán dinámicamente -->
+                </datalist>
+            </div>
+
+            <button class="btn" onclick="goToApp()">Entrar a mi App</button>
+
+            <div class="links">
+                <a href="acceso_fotografo.html" class="link-item">
+                    <span>⚙️</span> Acceso <b>Profesionales</b>
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2026 Basecode | Campaña Comuniones
+        </footer>
+    </div>
+
+    <!-- Firebase SDK (Solo lo necesario para el listado) -->
+</body>
+
+</html>

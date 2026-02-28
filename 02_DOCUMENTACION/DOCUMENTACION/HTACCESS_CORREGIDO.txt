@@ -1,0 +1,38 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# --- 1. EXCEPCIONES: Carpetas de administración y gestión ---
+RewriteRule ^admin(/.*)?$ - [L,NC]
+RewriteRule ^gestion(/.*)?$ - [L,NC]
+RewriteRule ^comuniones2026(/.*)?$ - [L,NC]
+
+# --- 2. ARCHIVOS ESPECÍFICOS DE ADMINISTRACIÓN ---
+RewriteRule ^acceso\.html$ - [L,NC]
+RewriteRule ^mail_handler\.php$ - [L,NC]
+RewriteRule ^send_mail\.php$ - [L,NC]
+
+# --- 3. NO REDIRIGIR CARPETAS DE ASSETS ---
+RewriteRule ^assets(/.*)?$ - [L,NC]
+RewriteRule ^js(/.*)?$ - [L,NC]
+RewriteRule ^modulos(/.*)?$ - [L,NC]
+
+# --- 4. ARCHIVOS REALES (JS, CSS, Imágenes, Audio, PHP) ---
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# --- 5. DIRECTORIOS REALES ---
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# --- 6. NO REDIRIGIR ARCHIVOS CON EXTENSIONES ESPECÍFICAS ---
+RewriteRule \.(js|css|jpg|jpeg|png|gif|webp|svg|mp3|mp4|pdf|txt|xml|json)$ - [L,NC]
+
+# --- 7. MOTOR MAESTRO (URLs Amigables para eventos) ---
+# Solo redirige al index.html si NO es ninguno de los anteriores
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.html [L]
+</IfModule>
+
+# Desactivar listado de directorios
+Options -Indexes

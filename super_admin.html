@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - Gestión de Fotógrafos y Eventos</title>
+    <link rel="icon" type="image/png" href="./assets/new_logo_blanco.png">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .font-cursive {
+            font-family: 'Pacifico', cursive;
+        }
+
+        .filter-pill.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        /* Personalización de scroll */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+    <script type="module" crossorigin src="./js/superadmin_fuente.js"></script>
+    <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
+    <link rel="modulepreload" crossorigin href="./js/config.js">
+</head>
+
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+            <div class="flex items-center gap-6">
+                <div>
+                    <h1 class="font-cursive text-5xl text-emerald-400 mb-4">Super Admin</h1>
+                    <p class="text-slate-400 text-lg">Control Maestro Multi-Fotógrafo</p>
+                </div>
+                <img src="./assets/new_lobo_black.webp" alt="Logo" class="h-32 w-auto object-contain">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openGlobalAppsDirectory()"
+                    class="bg-white/10 hover:bg-white/20 border border-white/10 px-6 py-3 rounded-2xl font-bold transition flex items-center gap-2 shadow-lg">
+                    <span>📂</span> Directorio de Apps
+                </button>
+                <button onclick="openMigration()"
+                    class="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-2xl font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                    <span>🔗</span> Asignar Eventos
+                </button>
+                <button onclick="showAddModal()"
+                    class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <span>+</span> Nuevo Fotógrafo
+                </button>
+            </div>
+        </header>
+
+
+
+        <!-- LISTA DE FOTÓGRAFOS -->
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span class="text-emerald-400">📸</span> Fotógrafos Registrados
+        </h2>
+        <div id="photographers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cargando... -->
+        </div>
+    </div>
+
+    <!-- MODAL VISOR DE EVENTOS DEL FOTÓGRAFO (A PANTALLA COMPLETA) -->
+    <div id="events-viewer-modal" class="fixed inset-0 bg-slate-950 hidden z-50 flex flex-col">
+        <header class="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50 backdrop-blur-xl">
+            <!-- Botones estilo Mac (Lado Izquierdo) -->
+            <div class="flex gap-2">
+                <button onclick="closeEventsViewer()"
+                    class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] hover:brightness-90 transition border border-[#e0443e]"></button>
+                <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
+            </div>
+
+            <!-- Identidad y Filtros (Lado Derecho) -->
+            <div class="flex items-center gap-6">
+                <!-- Barra de búsqueda -->
+                <div class="relative group">
+                    <span
+                        class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                    <input type="text" id="viewer-search" oninput="filterViewerSearch(this.value)"
+                        placeholder="Buscar por evento o fotógrafo..."
+                        class="bg-slate-800 border border-white/10 text-white text-[11px] font-medium px-10 py-3 rounded-2xl outline-none w-80 focus:ring-2 focus:ring-emerald-500/50 transition-all font-sans">
+                </div>
+
+                <div id="viewer-logo-container"
+                    class="w-16 h-16 bg-white/5 rounded-2xl p-2 border border-white/10 shadow-2xl glass">
+                    <img id="viewer-photo-logo" src="" class="w-full h-full object-contain">
+                </div>
+                <div class="flex flex-col items-end">
+                    <h2 id="viewer-photo-name" class="text-2xl font-bold text-white tracking-tight">...</h2>
+                    <div class="hidden">
+                        <select onchange="filterViewer(this.value)" id="viewer-select-filter">
+                            <option value="eventos">Eventos</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="viewer-content"
+            class="flex-1 overflow-y-auto p-6 md:p-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950">
+            <div id="viewer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Eventos cargados aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ASIGNACIÓN (MIGRACIÓN SEGURA) -->
+    <div id="migration-modal" class="fixed inset-0 bg-black/90 hidden z-50 p-4 flex items-center justify-center">
+        <div class="glass p-8 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col border-indigo-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Organizar Carpeta de Eventos</h2>
+                <button onclick="toggleSelectAll()" id="btn-select-all"
+                    class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition font-bold text-slate-300">
+                    Seleccionar Todos
+                </button>
+            </div>
+            <p class="text-slate-400 mb-6 text-sm">Selecciona los eventos sueltos para asignarlos a un fotógrafo.<br>
+                <span class="text-indigo-400 font-bold">⚠️ ACLARACIÓN: Las URLs NO cambian, solo se añade la marca del
+                    fotógrafo.</span>
+            </p>
+
+            <div id="unassigned-list" class="flex-1 overflow-y-auto space-y-2 pr-2 mb-6">
+                <!-- Lista de eventos sin fotógrafo -->
+            </div>
+
+            <div class="border-t border-white/10 pt-6 space-y-4">
+                <label class="block text-sm font-bold text-slate-400 mb-1">Cargar etiqueta de:</label>
+                <select id="select-target-photo"
+                    class="w-full bg-slate-800 p-4 rounded-xl text-white outline-none ring-2 ring-emerald-500/20">
+                    <!-- Opciones -->
+                </select>
+                <div class="flex gap-4">
+                    <button onclick="closeMigration()"
+                        class="flex-1 bg-slate-700 py-4 rounded-xl font-bold hover:bg-slate-600 transition">Cerrar</button>
+                    <button onclick="applyAssignment()"
+                        class="flex-1 bg-emerald-600 py-4 rounded-xl font-bold hover:bg-emerald-500 transition">Asignar
+                        Seleccionados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO/EDITAR FOTÓGRAFO -->
+    <div id="modal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-50 p-4">
+        <div
+            class="glass p-8 rounded-3xl w-full max-w-2xl max-h-[95vh] overflow-y-auto overflow-x-hidden scrollbar-hide">
+            <h2 id="modal-title" class="text-2xl font-bold mb-6">Configurar Fotógrafo</h2>
+            <form id="photo-form" class="space-y-6">
+                <!-- Logotipo -->
+                <div class="flex items-center gap-6 justify-between">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Logotipo</label>
+                        <label
+                            class="inline-block cursor-pointer bg-slate-800 border-2 border-dashed border-emerald-500/30 hover:border-emerald-500 rounded-xl px-8 py-4 text-center transition">
+                            <span id="file-label" class="text-sm opacity-60">Cambiar archivo...</span>
+                            <input type="file" id="photo-file" class="hidden" accept="image/*">
+                        </label>
+                        <div id="upload-progress-bar"
+                            class="hidden w-full h-1 bg-slate-700 rounded-full mt-2 overflow-hidden">
+                            <div id="upload-progress" class="h-full bg-emerald-500 w-0 transition-all"></div>
+                        </div>
+                    </div>
+                    <div id="logo-preview-container"
+                        class="hidden w-32 h-32 bg-white/5 border border-white/10 rounded-2xl p-3 shadow-2xl flex-shrink-0">
+                        <img id="logo-preview" class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                <!-- Identidad Visual -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">ID Único (Slug)</label>
+                        <input type="text" id="photo-id"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Nombre
+                            Comercial</label>
+                        <input type="text" id="photo-name"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500"
+                            required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Lema / Slogan</label>
+                        <input type="text" id="photo-lema" placeholder="Ej: Especialistas en crear recuerdos mágicos."
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <hr class="border-white/5">
+
+                <!-- Contacto -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Email de
+                            Contacto</label>
+                        <input type="email" id="photo-email"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">WhatsApp</label>
+                        <input type="tel" id="photo-whatsapp"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Instagram
+                            (@usuario)</label>
+                        <input type="text" id="photo-insta"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Sitio Web</label>
+                        <input type="url" id="photo-web"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Enlace a Reseñas de
+                            Google (Google Review Link)</label>
+                        <input type="url" id="photo-google-reviews" placeholder="https://g.page/r/.../review"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <hr class="border-white/5">
+
+                <!-- Datos Fiscales -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Razón Social</label>
+                        <input type="text" id="photo-razon"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">NIF / CIF
+                            (Empresa)</label>
+                        <input type="text" id="photo-nif"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Teléfono Fiscal</label>
+                        <input type="tel" id="photo-tel-fiscal"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Dirección Fiscal /
+                            Oficina</label>
+                        <input type="text" id="photo-direccion"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Localidad</label>
+                        <input type="text" id="photo-localidad"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Provincia</label>
+                        <input type="text" id="photo-provincia"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Código Postal</label>
+                        <input type="text" id="photo-cp"
+                            class="w-full bg-slate-800 border-none rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-6">
+                    <button type="button" onclick="hideModal()"
+                        class="flex-1 bg-slate-700 py-4 rounded-xl font-bold hover:bg-slate-600 transition">Cancelar</button>
+                    <button type="submit"
+                        class="flex-1 bg-emerald-600 py-4 rounded-xl font-bold hover:bg-emerald-500 transition shadow-lg shadow-emerald-500/20 text-white">Guardar
+                        Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DIÁLOGO PERSONALIZADO (ALERT/CONFIRM) -->
+    <div id="custom-dialog-overlay"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] hidden flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass border border-white/10 p-8 rounded-3xl w-full max-w-sm flex flex-col items-center text-center shadow-2xl transform scale-95 transition-transform duration-300"
+            id="custom-dialog-box">
+            <div id="custom-dialog-icon"
+                class="text-4xl mb-4 bg-slate-800 w-16 h-16 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                🔔
+            </div>
+            <h3 id="custom-dialog-title" class="text-xl font-bold mb-2 text-white">Atención</h3>
+            <p id="custom-dialog-message" class="text-sm text-slate-400 mb-8 whitespace-pre-line"></p>
+
+            <div id="custom-dialog-buttons" class="flex gap-4 w-full justify-center">
+                <!-- Botones inyectados dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

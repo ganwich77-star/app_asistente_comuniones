@@ -1,0 +1,158 @@
+<section id="asistencia" class="p-4 md:p-6 mx-auto mt-16">
+    <div class="card-rsvp">
+        <div id="rsvp-header" class="titulo">¿Vienes conmigo?</div>
+
+        <div id="rsvp-form-content" class="open">
+            <input type="text" id="guest-names" class="input-nombre attention-pulse"
+                placeholder="Vuestro(s) nombre(s)...">
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="contador-section">
+                    <span class="contador-label">Adultos</span>
+                    <div class="controles">
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('adults', -1)">-</button>
+                        <span id="count-adults" class="valor">2</span>
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('adults', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="contador-section">
+                    <span class="contador-label">Niños</span>
+                    <div class="controles">
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('kids', -1)">-</button>
+                        <span id="count-kids" class="valor">0</span>
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('kids', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu-selection-container" class="dropdown-menu attention-pulse">
+                <div class="dropdown-header" onclick="window.toggleMenuDropdown()">
+                    <span id="dropdown-label">🍽️ Elige tu menú</span>
+                    <span class="flecha">▲</span>
+                </div>
+
+                <div id="menu-dropdown" class="menu-opciones">
+                    <div class="opcion-item">
+                        <span class="opcion-header">🥩 Carne</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Carne',-1)">-</button>
+                            <span id="unit-Carne" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Carne',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🐟 Pescado</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Pescado',-1)">-</button>
+                            <span id="unit-Pescado" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Pescado',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🥗 Vegetariano</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegetariano',-1)">-</button>
+                            <span id="unit-Vegetariano" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegetariano',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🌱 Vegano</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegano',-1)">-</button>
+                            <span id="unit-Vegano" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegano',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🌾 Sin Gluten</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('SinGluten',-1)">-</button>
+                            <span id="unit-SinGluten" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('SinGluten',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🍟 Infantil</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Infantil',-1)">-</button>
+                            <span id="unit-Infantil" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Infantil',1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFO PAGO MENÚ (NUEVO DISEÑO ALTA VISIBILIDAD) -->
+            <div id="payment-info-container" class="hidden mt-8">
+                <div
+                    class="bg-white border-2 border-emerald-600/10 rounded-[40px] p-8 shadow-xl shadow-emerald-900/5 text-center">
+                    <h3 class="text-[10px] uppercase font-black tracking-[0.3em] text-emerald-800/40 mb-6">Información
+                        del Menú</h3>
+
+                    <div class="flex justify-around items-center mb-8 gap-4">
+                        <div id="payment-adult-price-row" class="hidden flex-1">
+                            <p class="text-[9px] uppercase font-bold text-gray-400 mb-1">Adulto</p>
+                            <p id="payment-adult-price-txt" class="text-3xl font-black text-emerald-700 leading-none">
+                            </p>
+                        </div>
+                        <div id="payment-child-price-row" class="hidden flex-1 border-l border-emerald-100">
+                            <p class="text-[9px] uppercase font-bold text-gray-400 mb-1">Infantil</p>
+                            <p id="payment-child-price-txt" class="text-3xl font-black text-emerald-700 leading-none">
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="payment-deadline-row"
+                        class="hidden bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                        <p class="text-[8px] uppercase font-black text-emerald-800/50 mb-1 tracking-widest">Fecha Límite
+                        </p>
+                        <p id="payment-deadline-txt"
+                            class="text-sm font-black text-emerald-900 uppercase tracking-widest"></p>
+                    </div>
+
+                    <!-- NUEVOS CAMPOS: BENEFICIARIO Y BANCO -->
+                    <div id="payment-extra-info-row" class="hidden mt-4 pt-4 border-t border-emerald-100/30">
+                        <div class="flex flex-col gap-1 text-center">
+                            <p id="payment-beneficiary-txt"
+                                class="text-[9px] font-black text-emerald-900/60 uppercase tracking-wider"></p>
+                            <p id="payment-bank-txt"
+                                class="text-[8px] font-bold text-emerald-600/50 uppercase tracking-[0.2em]"></p>
+                        </div>
+                    </div>
+
+                    <button id="iban-copy-btn" onclick="window.copyIBANToClipboard(this)"
+                        class="mt-6 w-full bg-emerald-800 text-white font-black py-4 rounded-2xl uppercase tracking-[0.2em] text-[10px] shadow-lg active:scale-95 transition-all flex items-center justify-center gap-3">
+                        <span>🏦</span> <span id="iban-btn-text">Copiar IBAN</span>
+                    </button>
+
+                    <p class="mt-4 text-[9px] text-gray-400 italic">
+                        Pulsa el botón para copiar y ver el número de cuenta
+                    </p>
+                </div>
+            </div>
+
+            <textarea id="guest-comments" class="textarea-alergias"
+                placeholder="¿Algo que debamos saber? Alergias, intolerancias, etc."></textarea>
+
+            <button id="submit-btn" onclick="window.handleRSVP()" class="btn-confirmar">Confirmar Asistencia</button>
+        </div>
+    </div>
+</section>

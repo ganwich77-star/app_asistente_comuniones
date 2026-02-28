@@ -1,0 +1,47 @@
+<section id="galeria" class="p-4 max-w-md mx-auto mt-16 text-center">
+    <div class="card p-6 border-emerald-50">
+        <div class="mb-4">
+            <span class="text-5xl filter sepia opacity-80 block animate-bounce">📸</span>
+        </div>
+        <h2 class="font-cursive text-4xl text-emerald-700 mb-2">Momentos</h2>
+        <p class="text-xs text-emerald-600/60 uppercase tracking-widest mb-6 italic">Desliza para explorar</p>
+
+        <div class="gallery-wrapper">
+            <!-- Botón Izquierdo -->
+            <button class="btn-nav btn-prev" onclick="window.moveSlide(-1)" aria-label="Anterior">&#10094;</button>
+
+            <div class="slider-container" id="slider-container">
+                <div class="slider-track" id="slider-track">
+                    <!-- Las páginas de la galería se inyectarán aquí por JS -->
+                </div>
+            </div>
+
+            <!-- Botón Derecho -->
+            <button class="btn-nav btn-next" onclick="window.moveSlide(1)" aria-label="Siguiente">&#10095;</button>
+        </div>
+
+        <!-- Controles de borrado -->
+        <div id="delete-controls" class="hidden mt-6">
+            <div class="grid grid-cols-2 gap-3">
+                <button id="gallery-exit-cancel-btn" onclick="window.toggleAdminEditMode()"
+                    class="w-full bg-gray-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider shadow-md hover:bg-gray-600 transition-colors">Salir</button>
+                <button id="delete-selected-photos-btn" onclick="window.deleteSelectedPhotos()"
+                    class="w-full bg-red-600 text-white py-3 rounded-xl font-bold uppercase tracking-wider shadow-md hover:bg-red-700 transition-colors opacity-50"
+                    disabled>Eliminar</button>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <textarea id="photo-comment" placeholder="✨ ¡Añade un mensaje a tu foto! ✨"
+                class="w-full p-4 border-2 border-amber-300 bg-amber-50 text-gray-800 rounded-xl text-sm mb-4 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all duration-300 text-center"
+                rows="3"></textarea>
+            <label for="photo-upload"
+                class="btn-custom w-full bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-emerald-500 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer attention-pulse">
+                <span class="text-2xl">📸</span> SUBIR FOTOS
+                <input type="file" id="photo-upload" accept="image/*" class="hidden" onchange="window.uploadPhoto(this)"
+                    multiple>
+            </label>
+            <p class="text-[10px] text-gray-400 mt-4 uppercase tracking-wider">Las fotos pueden tardar en aparecer</p>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,48 @@
+<section id="regalo" class="p-6 max-w-md mx-auto space-y-8 mt-16 text-center hidden">
+    <div id="regalo-card" class="card p-8 border-emerald-50 text-center">
+        <div id="regalo-header">
+            <div class="mb-4">
+                <span class="text-6xl filter drop-shadow-lg block animate-pulse">🎁</span>
+            </div>
+            <h2 class="font-cursive text-4xl text-emerald-700 mb-8 text-center">Mi Regalo</h2>
+        </div>
+
+        <div id="regalo-content" class="dropdown-content open">
+            <p id="regalo-texto-cortesia" class="texto-cortesia mt-4">
+                "Vuestra presencia es nuestro mejor regalo, pero si deseáis tener un detalle con {{PROTAGONISTA}} aquí
+                tenéis sus datos."
+            </p>
+
+            <div class="botones-container space-y-4">
+                <!-- Opción Hucha -->
+                <div id="gift-option-iban" class="hidden">
+                    <button id="btnHucha" onclick="window.handleHucha()"
+                        class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-2 border-emerald-200 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <span class="text-2xl">🏦</span> MI HUCHA
+                    </button>
+                </div>
+
+                <!-- Opción Bizum -->
+                <div id="gift-option-bizum" class="hidden">
+                    <button id="btnBizum" onclick="window.showBizumModal()"
+                        class="w-full bg-[#00aae4] hover:bg-[#009bd1] text-white border-2 border-[#009bd1] py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <span class="text-2xl">🚀</span> BIZUM
+                    </button>
+                </div>
+
+                <!-- Opción Lista de Regalos -->
+                <div id="gift-option-list" class="hidden">
+                    <button id="btnGiftList" onclick="window.openGiftList()"
+                        class="w-full bg-amber-50 hover:bg-amber-100 text-amber-900 border-2 border-amber-200 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <span class="text-2xl">📜</span> LISTA REGALOS
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Mi Hucha -->
+            <div id="panelHucha" class="panel-info">
+                <span class="concepto"><b>CONCEPTO:</b> <i>Comunión de {{PROTAGONISTA}}</i></span>
+            </div>
+        </div>
+    </div>
+</section>

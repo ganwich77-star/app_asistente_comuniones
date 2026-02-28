@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- MASTER ENGINE: Centraliza todas las apps en una sola raíz -->
+    <!-- <base href="/apps/"> -->
+
+    <title id="app-title">Claudia - Mi Primera Comunión</title>
+    <!-- Metaetiquetas Robustas (Genéricas) -->
+    <meta property="og:title" id="meta-og-title" content="Mi Primera Comunión">
+    <meta property="og:description" content="¡Te invito a mi Primera Comunión! Entra para ver los detalles.">
+    <meta property="og:image" id="meta-og-image"
+        content="https://apps.pujaltefotografia.es/comuniones2026/assets/images/01.webp">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="meta-twitter-title" content="Mi Primera Comunión">
+    <link rel="icon" type="image/webp" href="/apps/assets/images/corazon_01.webp">
+
+    <!-- Librerías de Terceros -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <!-- El '?v=1.1' fuerza al navegador a recargar el CSS si cambia la versión -->
+    <link rel="stylesheet" href="/apps/assets/css/estilos.css?v=pastel2">
+    <link rel="stylesheet" href="/apps/assets/css/estilos_reporte.css?v=2.0">
+
+    <script>
+        // Arquitectura de Temas: Inicialización inmediata
+        (function () {
+            const savedTheme = localStorage.getItem('selected-theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
+    </script>
+
+</head>
+
+<body class="antialiased locked">
+
+    <!-- ==========================================
+         ELEMENTOS GLOBALES (MODALES Y BOTONES)
+         ========================================== -->
+
+    <!-- BOTÓN SECRETO ADMIN (Desactivado temporalmente para pruebas locales) -->
+    <!-- 
+    <button onclick="window.handleSecretButtonClick()"
+        class="fixed top-0 left-0 w-24 h-24 opacity-0 z-[1000] cursor-default"></button>
+    -->
+
+    <!-- Botón de mute en esquina superior derecha (antes del tema) -->
+    <button onclick="window.toggleMute()" class="theme-btn-public fixed top-5 right-20 z-[1001]" id="mute-toggle"
+        aria-label="Silenciar/Activar audio">
+        <span id="mute-icon-display" class="transition-transform duration-300">🔊</span>
+    </button>
+
+    <!-- Botón de tema en esquina superior derecha (antes era el botón de música) -->
+    <button onclick="window.toggleThemeSwitch()" class="theme-btn-public fixed top-5 right-5 z-[1001]"
+        id="public-theme-toggle" aria-label="Cambiar modo oscuro">
+        <span id="theme-icon-display" class="transition-transform duration-500 rotate-0">☀️</span>
+    </button>
+
+    <!-- ALERTA PERSONALIZADA -->
+    <div id="custom-alert-overlay">
+        <div class="custom-alert-card">
+            <span class="text-5xl mb-4 block" id="alert-icon">⚠️</span>
+            <p id="alert-text" class="text-emerald-900 font-bold text-lg mb-6 leading-relaxed"></p>
+            <button onclick="window.closeCustomAlert()"
+                class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-md">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- VISOR DE FOTOS (LIGHTBOX) -->
+    <div id="lightbox" onclick="window.closeLightbox()" class="modal-overlay">
+        <div class="relative max-w-[90vw] max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <button onclick="window.closeLightbox()"
+                class="absolute top-0 right-0 -mt-2 -mr-2 text-white text-4xl z-10 bg-black/40 rounded-full w-10 h-10 flex items-center justify-center leading-none p-0">&times;</button>
+            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl">
+
+            <!-- Formulario de comentario para Admin -->
+            <div id="lightbox-comment-form" class="hidden mt-4 w-full max-w-lg flex flex-col gap-4">
+                <div id="lightbox-comments-list"
+                    class="w-full max-h-40 overflow-y-auto bg-gray-900/50 p-3 rounded-lg space-y-3 text-white text-sm">
+                    <!-- Los comentarios existentes se inyectarán aquí -->
+                </div>
+                <div class="flex gap-2 items-start">
+                    <textarea id="lightbox-comment-input" rows="1"
+                        class="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-emerald-500 outline-none"
+                        placeholder="Añadir un nuevo comentario..."></textarea>
+                    <button onclick="window.savePhotoComment()"
+                        class="px-6 py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nuevo Toast Notification -->
+    <div id="toast-notification" class="toast-new">
+        <span id="toast-icon"></span>
+        <span id="toast-text"></span>
+    </div>
+
+    <!-- MODAL BIZUM -->
+    <div id="bizum-modal" class="modal-overlay" onclick="window.closeBizumModal()">
+        <div class="bizum-card" onclick="event.stopPropagation()">
+            <img src="/apps/assets/images/Logo-Bizum.webp" class="h-10 mx-auto mb-6"
+                style="filter: brightness(0) invert(1);" alt="Logo Bizum">
+            <p class="text-4xl font-bold tracking-widest mb-4" id="view-bizum-phone"></p>
+            <div class="bg-white/10 p-3 rounded-xl mb-6 border border-white/20 text-base">
+                <p>Concepto: <b id="bizum-concept-protagonista">Comunión de {{PROTAGONISTA}}</b></p>
+            </div>
+            <button onclick="window.closeBizumModal()"
+                class="w-full bg-white text-[#00aae4] py-4 rounded-xl font-bold uppercase animate-heartbeat">Muchas
+                Gracias</button>
+        </div>
+    </div>
+
+    <!-- MODAL BANCO (HUCHA) -->
+    <div id="bank-modal" class="modal-overlay" onclick="window.closeBankModal()">
+        <!-- Contenedor para alinear verticalmente la tarjeta y el mensaje -->
+        <div class="flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="bank-modal-card">
+                <div class="bank-icon-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-800" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375a.375.375 0 01.375.375v1.5a.375.375 0 01-.375.375H9a.375.375 0 01-.375-.375v-1.5A.375.375 0 019 6.75zM9 12.75h6.375a.375.375 0 01.375.375v1.5a.375.375 0 01-.375.375H9a.375.375 0 01-.375-.375v-1.5A.375.375 0 019 12.75zM12 16.5h.008v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-6 text-emerald-800">Datos para la transferencia</h3>
+
+                <div class="w-full text-left space-y-3 mb-8">
+                    <div class="info-box">
+                        <p class="info-box-label">Banco</p>
+                        <p id="bank-name" class="info-box-value"></p>
+                    </div>
+                    <div class="info-box">
+                        <p class="info-box-label">Beneficiario</p>
+                        <p id="bank-beneficiary" class="info-box-value"></p>
+                    </div>
+                    <div class="info-box">
+                        <p class="info-box-label">Concepto</p>
+                        <p id="bank-concept" class="info-box-value"></p>
+                    </div>
+                </div>
+                <button onclick="window.closeBankModal()"
+                    class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold uppercase">Muchas Gracias</button>
+            </div>
+            <!-- Mensaje de confirmación de copia -->
+            <p id="iban-copy-toast" class="text-white font-semibold mt-4 opacity-0 transition-opacity duration-500">
+                ✅ IBAN copiado al portapapeles
+            </p>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE INVITADO (NUEVO) -->
+    <div id="guest-detail-modal" class="modal-overlay" onclick="window.closeGuestDetailModal()">
+        <div class="guest-detail-card" onclick="event.stopPropagation()">
+            <button onclick="window.closeGuestDetailModal()"
+                class="absolute top-4 right-5 text-gray-500 text-3xl">&times;</button>
+            <h3 id="guest-detail-name" class="font-cursive text-4xl text-emerald-700 mb-6 text-center"></h3>
+
+            <div class="flex justify-around bg-emerald-50 p-4 rounded-2xl mb-6 text-center">
+                <div class="flex flex-col items-center">
+                    <span id="guest-detail-adults" class="text-4xl font-bold text-emerald-800">0</span>
+                    <span class="text-[10px] uppercase font-bold text-emerald-600">Adultos</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span id="guest-detail-kids" class="text-4xl font-bold text-emerald-800">0</span>
+                    <span class="text-[10px] uppercase font-bold text-emerald-600">Niños</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span id="guest-detail-total" class="text-4xl font-bold text-emerald-800">0</span>
+                    <span class="text-[10px] uppercase font-bold text-emerald-600">Total</span>
+                </div>
+            </div>
+
+            <div id="guest-detail-menu-container" class="w-full text-left mb-6">
+                <h4 class="text-sm font-bold uppercase text-emerald-600/70 mb-3">Menús Seleccionados</h4>
+                <div id="guest-detail-menu" class="grid grid-cols-2 gap-3"></div>
+            </div>
+
+            <div id="guest-detail-comments-container" class="w-full text-left hidden">
+                <h4 class="text-sm font-bold uppercase text-emerald-600/70 mb-3">Observaciones</h4>
+                <p id="guest-detail-comments" class="bg-emerald-50 p-4 rounded-xl text-sm text-gray-700 italic"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIN ADMIN -->
+    <div id="pin-modal" class="modal-overlay" onclick="window.closePinModal()">
+        <div class="card p-10 w-full max-w-sm text-center relative mx-auto" onclick="event.stopPropagation()">
+            <button onclick="window.closePinModal()"
+                class="absolute top-4 right-4 text-emerald-800 text-2xl">&times;</button>
+            <h2 class="font-cursive text-3xl text-emerald-700 mb-8">Acceso Admin</h2>
+
+            <!-- Display de números con icono de portapapeles -->
+            <div class="relative mx-auto mb-10 max-w-[280px]">
+                <input type="text" id="pin-input"
+                    class="w-full text-center text-2xl text-emerald-800 font-mono tracking-widest min-h-[50px] bg-emerald-50 rounded-lg py-3 px-4 border-2 border-emerald-200 focus:outline-none focus:border-emerald-500"
+                    oninput="window.syncPinInput(this.value)" maxlength="12" inputmode="numeric">
+                <button onclick="window.pasteFromClipboard()"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-2xl hover:scale-110 transition-transform"
+                    title="Pegar desde portapapeles">📋</button>
+            </div>
+
+            <!-- Teclado numérico -->
+            <div class="grid grid-cols-3 gap-5 max-w-[300px] mx-auto justify-items-center">
+                <button onclick="window.enterPinDigit('1')" class="keypad-btn">1</button>
+                <button onclick="window.enterPinDigit('2')" class="keypad-btn">2</button>
+                <button onclick="window.enterPinDigit('3')" class="keypad-btn">3</button>
+                <button onclick="window.enterPinDigit('4')" class="keypad-btn">4</button>
+                <button onclick="window.enterPinDigit('5')" class="keypad-btn">5</button>
+                <button onclick="window.enterPinDigit('6')" class="keypad-btn">6</button>
+                <button onclick="window.enterPinDigit('7')" class="keypad-btn">7</button>
+                <button onclick="window.enterPinDigit('8')" class="keypad-btn">8</button>
+                <button onclick="window.enterPinDigit('9')" class="keypad-btn">9</button>
+                <button onclick="window.validatePin()" class="keypad-btn bg-green-50 !text-green-600">✓</button>
+                <button onclick="window.enterPinDigit('0')" class="keypad-btn">0</button>
+                <button onclick="window.clearPin()" class="keypad-btn bg-red-50 !text-red-600">✕</button>
+            </div>
+
+            <!-- Enlaces Legales en Admin -->
+            <div
+                class="mt-8 pt-6 border-t border-emerald-100 flex justify-center gap-4 text-[10px] uppercase font-bold text-emerald-600/50">
+                <a href="#" onclick="window.showPrivacyPolicyModal(); event.preventDefault();"
+                    class="hover:text-emerald-700 transition-colors">Privacidad</a>
+                <span>•</span>
+                <a href="#" onclick="window.showTermsModal(); event.preventDefault();"
+                    class="hover:text-emerald-700 transition-colors">Términos de Uso</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA BIENVENIDA ADMIN -->
+    <div id="admin-welcome-screen" class="modal-overlay">
+        <div class="card p-10 max-w-sm mx-auto text-center bg-[#064e3b] text-white border-none shadow-2xl">
+            <span class="text-7xl mb-6 block mx-auto">🛠️</span>
+            <h2 class="font-cursive text-3xl mb-6">¡Hola, Admin!</h2>
+            <p class="text-sm opacity-90 mb-8 leading-relaxed">Completa los formularios de <b>tus perfiles y los de tus
+                    proveedores</b> y envíalo por email <b>pulsando en el icono azul</b>.</p>
+            <button onclick="window.closeAdminWelcome()"
+                class="btn-custom bg-white text-emerald-900 px-8 py-4 rounded-xl font-bold w-full shadow-xl uppercase tracking-widest">CUENTA
+                CON ELLO</button>
+        </div>
+    </div>
+
+    <div id="mod-nav"></div>
+
+    <!-- OVERLAY DE TRANSICIÓN FOTOS -->
+    <div id="intro-overlay" class="intro-photo-overlay">
+        <img id="intro-flash-img" src="" class="photo-flash">
+    </div>
+
+    <!-- REPRODUCTOR -->
+    <div id="music-container">
+        <audio id="sfx-heartbeat" loop preload="auto">
+            <source id="sfx-heartbeat-src" src="/apps/assets/audio/heartbeat01.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sfx-key" preload="auto">
+            <source id="sfx-key-src" src="/apps/assets/audio/mech_keyboard.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sfx-shutter" preload="auto">
+            <source id="sfx-shutter-src" src="/apps/assets/audio/camera-shutter-314056.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="bg-music" loop preload="auto">
+            <source id="bg-music-src" src="/apps/assets/audio/inspire-375980.mp3" type="audio/mpeg">
+        </audio>
+
+        <style>
+            body.unlocked #start-instruction {
+                display: none !important;
+            }
+        </style>
+
+        <div class="flex flex-col items-center">
+            <button onclick="toggleMusic()"
+                class="music-btn animate-heartbeat flex items-center justify-center relative" id="music-toggle">
+                <div id="music-display" class="transition-opacity duration-300">
+                    <img src="/apps/assets/images/corazon_01.webp" class="w-20 h-20 object-contain" alt="Corazón">
+                </div>
+                <!-- Cuenta regresiva dentro del botón (oculta por defecto) -->
+                <div id="countdown-display"
+                    class="font-cursive text-5xl text-[var(--primary)] transition-all duration-300 transform scale-0 font-bold absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none pb-1">
+                </div>
+            </button>
+            <p id="start-instruction"
+                class="font-cursive text-3xl text-emerald-700 mt-6 animate-pulse drop-shadow-md opacity-0 transition-opacity duration-300">
+                Toca mi corazón</p>
+
+            <!-- CHECKING LEGAL DEBAJO DEL CORAZÓN -->
+            <div id="initial-legal-check"
+                class="mt-8 flex flex-col items-center gap-3 animate-fade-in px-6 max-w-[280px]">
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <div class="relative flex items-center mt-1">
+                        <input type="checkbox" id="legal-checkbox-inicio"
+                            class="peer appearance-none w-5 h-5 border-2 border-emerald-300 rounded-md checked:bg-emerald-600 checked:border-emerald-600 transition-all">
+                        <svg class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <span
+                        class="text-[10px] uppercase font-bold text-emerald-800/60 leading-tight text-center group-hover:text-emerald-800 transition-colors">
+                        Acepto la <a href="#"
+                            onclick="window.showPrivacyPolicyModal(); event.stopPropagation(); event.preventDefault();"
+                            class="text-emerald-700 underline">Privacidad</a> y los <a href="#"
+                            onclick="window.showTermsModal(); event.stopPropagation(); event.preventDefault();"
+                            class="text-emerald-700 underline">Términos de Uso</a> para entrar.
+                    </span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="main-content">
+        <!-- 🏠 INICIO -->
+        <section id="inicio"
+            class="flex flex-col items-center justify-center text-center p-6 py-12 rounded-b-[40px] overflow-hidden">
+            <div id="intro-header">
+                <div class="mb-4 mx-auto w-max heart-container">
+                    <img id="header-icon" src="/apps/assets/images/PALOMA.png" class="h-28 w-28 object-contain">
+                </div>
+                <h1 class="font-cursive text-7xl md:text-9xl text-emerald-700 mb-2" id="protagonista-nombre">Claudia
+                </h1>
+                <p class="text-xl md:text-3xl font-bold uppercase tracking-[0.3em] text-emerald-600 opacity-70 mb-8"
+                    id="protagonista-subtitulo">Mi Primera Comunión</p>
+            </div>
+
+            <div id="intro-scroll-area" class="w-full relative overflow-hidden mt-4 mb-4 text-center">
+                <div class="intro-scroll-container">
+                    <div id="photo-card-1" class="intro-photo-card" onclick="window.zoomPhoto('')"><img src=""></div>
+                    <div id="photo-card-2" class="intro-photo-card border-emerald-50" onclick="window.zoomPhoto('')">
+                        <img src="">
+                    </div>
+                    <div id="photo-card-3" class="intro-photo-card" onclick="window.zoomPhoto('')"><img src=""></div>
+                </div>
+            </div>
+
+            <p class="text-2xl font-bold text-emerald-800 tracking-wide mt-6 mb-2" id="evento-fecha-texto"></p>
+            <div class="flex space-x-3 mb-10 justify-center">
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px] text-center"><span id="days"
+                        class="block text-3xl font-bold text-emerald-700">00</span><span
+                        class="text-[10px] uppercase font-bold text-emerald-800">Días</span></div>
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px] text-center"><span id="hours"
+                        class="block text-3xl font-bold text-emerald-700">00</span><span
+                        class="text-[10px] uppercase font-bold text-emerald-800 text-center">Hrs</span></div>
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px] text-center"><span id="minutes"
+                        class="block text-3xl font-bold text-emerald-700">00</span><span
+                        class="text-[10px] uppercase font-bold text-emerald-800 text-center text-center">Min</span>
+                </div>
+            </div>
+            <a href="#asistencia" onclick="window.resetRSVPForm()"
+                class="btn-custom bg-emerald-50 text-emerald-900 px-10 py-4 rounded-full font-bold text-lg shadow-md">Confirmar
+                asistencia</a>
+        </section>
+
+        <div id="mod-map"></div>
+        <div id="mod-asistencia"></div>
+
+        <!-- ⭐ OPINIONES (movido después de asistencia) -->
+        <section id="resenas-section" class="p-6 max-w-md mx-auto mt-16 text-center">
+            <div class="mb-4">
+                <span class="text-5xl filter sepia opacity-80 block animate-pulse">🎞️</span>
+            </div>
+            <h2 class="font-cursive text-4xl text-emerald-700 mb-8">Tras mis recuerdos</h2>
+            <div class="card p-8 bg-emerald-50/40 border-2 border-white shadow-inner relative overflow-hidden">
+                <div class="review-box">
+                    <div class="review-item active">
+                        <div class="flex justify-center text-orange-400 mb-3 text-2xl">⭐⭐⭐⭐⭐</div>
+                        <p class="text-lg italic text-gray-700 leading-relaxed">"Las sesiones de estudio capturan la
+                            esencia natural de los niños. ¡Repetiremos seguro!"</p>
+                        <p class="font-bold text-emerald-800 mt-4">- Familia Martínez (Estudio) -</p>
+                    </div>
+                    <div class="review-item">
+                        <div class="flex justify-center text-orange-400 mb-3 text-2xl">⭐⭐⭐⭐⭐</div>
+                        <p class="text-lg italic text-gray-700 leading-relaxed">"Un trabajo impecable en la comunión de
+                            mi hijo. Las fotos en exteriores quedaron mágicas."</p>
+                        <p class="font-bold text-emerald-800 mt-4">- Ana Belén (Comunión) -</p>
+                    </div>
+                    <div class="review-item">
+                        <div class="flex justify-center text-orange-400 mb-3 text-2xl">⭐⭐⭐⭐⭐</div>
+                        <p class="text-lg italic text-gray-700 leading-relaxed">"Inmortalizaron nuestra boda de la forma
+                            más emotiva posible. No podíamos haber elegido mejor."</p>
+                        <p class="font-bold text-emerald-800 mt-4">- Carlos & María (Boda) -</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-10 px-4">
+                <p class="text-emerald-800 text-xl font-medium mb-6 italic leading-relaxed">"¡Qué fotos más bonitas y
+                    qué aplicación más chula ha preparado mi fotógrafo! ¿Qué te parece?"</p>
+                <button id="like-btn" onclick="window.handleLikeClick(event)"
+                    class="btn-custom inline-block bg-emerald-600 text-white px-12 py-6 rounded-2xl font-bold shadow-md hover:bg-emerald-500 transition-all text-2xl">❤️
+                    Me encanta</button>
+            </div>
+            <div id="gift-reveal" class="hidden mt-8 reveal-animation">
+                <button onclick="window.showLeadForm()"
+                    class="btn-custom inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white px-10 py-6 rounded-2xl font-bold shadow-lg animate-gift border-2 border-white text-2xl">✨
+                    ¡Tu regalo te espera! 🎁</button>
+            </div>
+        </section>
+
+        <div id="mod-galeria"></div>
+        <div id="mod-regalo"></div>
+
+        <!-- Sección de Opiniones movida después de asistencia -->
+
+        <!-- 🎁 LEAD FORM REGALO -->
+        <section id="marketing-gift-form" class="hidden p-6 max-w-md mx-auto mt-16 text-center reveal-animation">
+            <div class="card p-10 border-2 border-orange-200 bg-orange-50/20">
+                <img src="/apps/assets/images/logo_verde.webp" class="h-24 mx-auto mb-6 logo-white"
+                    alt="Pujalte Creative Studio">
+                <h2 class="font-cursive text-4xl text-orange-700 mb-4">Un Regalo para Ti</h2>
+                <div
+                    class="bg-white p-8 rounded-2xl border border-orange-100 mb-10 text-lg text-gray-700 leading-relaxed">
+                    Te regalamos un <span class="font-bold text-orange-600 text-2xl discount-pulse">10% de
+                        descuento</span> en cualquiera de nuestros packs de sesiones.
+                    <div id="urgency-counter-container" class="mt-4 text-center">
+                        <p class="text-sm text-gray-600 mb-2">Esta oferta expira en:</p>
+                        <div id="urgency-counter" class="text-2xl md:text-3xl font-bold text-gray-800 tracking-widest">
+                            <span id="urgency-hours">00</span>h <span id="urgency-minutes">00</span>m <span
+                                id="urgency-seconds">00</span>s
+                        </div>
+                    </div>
+                    <p class="text-[10px] italic mt-1 text-gray-500">*Excepto en promociones específicas</p>
+                </div>
+                <div class="space-y-6 text-left">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-6 text-xl text-gray-500">👤</span>
+                        <input type="text" id="lead-name" placeholder="Ej: Ana García"
+                            class="w-full p-6 pl-16 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-6 text-xl text-gray-500">📞</span>
+                        <input type="tel" id="lead-phone" placeholder="Ej: 600112233"
+                            class="w-full p-6 pl-16 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-6 text-xl text-gray-500">✉️</span>
+                        <input type="email" id="lead-email" placeholder="Ej: ana.garcia@email.com"
+                            class="w-full p-6 pl-16 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+                    </div>
+
+                    <div class="flex items-start space-x-2 mt-4"><input type="checkbox" id="privacy-check"
+                            class="mt-1"><label for="privacy-check" class="text-xs text-gray-600">Acepto la <a href="#"
+                                onclick="window.showPrivacyPolicyModal(); event.preventDefault();"
+                                class="underline">política de privacidad</a> para recibir el descuento.</label></div>
+                    <p class="text-[9px] text-gray-400 mt-2 leading-tight">Tus datos serán tratados por el Fotógrafo
+                        para la entrega del descuento. Esta plataforma eliminará todos tus datos el 1 de julio de 2026.
+                        Al registrarte, aceptas nuestra política de privacidad.</p>
+
+                    <button onclick="window.confirmarDescuento()"
+                        class="btn-custom bg-orange-500 text-white w-full py-6 rounded-2xl font-bold shadow-lg text-2xl">¡Lo
+                        quiero! 🤗</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="mod-admin"></div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="w-full text-center p-8 mt-16">
+        <img src="/apps/assets/images/logo_verde.webp" class="h-40 mx-auto mb-4 footer-logo-style cursor-pointer"
+            alt="Pujalte Creative Studio" onclick="window.initSecretAdminAccess()" id="secret-admin-trigger">
+        <p class="font-cursive text-emerald-800 text-lg mb-4">"Más que fotografía, tus mejores recuerdos"</p>
+        <a href="#" id="footer-instagram-link" target="_blank"
+            class="text-sm text-gray-500 hover:text-emerald-700 transition-colors">
+            @pujaltefotografia
+        </a>
+        <a href="#" onclick="window.showPrivacyPolicyModal()"
+            class="text-xs text-gray-400 hover:text-emerald-700 transition-colors mt-4 block">
+            Política de Privacidad
+        </a>
+        <a href="#" onclick="window.showTermsModal()"
+            class="text-xs text-gray-400 hover:text-emerald-700 transition-colors mt-2 block">
+            Términos de Uso
+        </a>
+        <p class="text-xs text-gray-400 mt-6">
+            Powered by <span class="font-bold text-emerald-700">Pujalte Creative Studio</span>
+        </p>
+    </footer>
+
+    <!-- MODAL CONFIRMACIÓN REGALO -->
+    <div id="gift-confirmation-modal" class="modal-overlay" onclick="window.closeGiftConfirmationModal()">
+        <div class="card p-10 w-full max-w-sm text-center relative mx-auto" onclick="event.stopPropagation()"
+            style="background: linear-gradient(135deg, #b89d64 0%, #8a6d3b 100%); color: white;">
+            <span class="text-7xl mb-6 block mx-auto animate-gift">🎁</span>
+            <h2 class="font-cursive text-3xl mb-4">¡Enhorabuena!</h2>
+            <p class="text-lg opacity-90 mb-8 leading-relaxed">Tu descuento está en camino. Contactaremos contigo muy
+                pronto.</p>
+            <button onclick="window.closeGiftConfirmationModal()"
+                class="btn-custom bg-white text-[#8a6d3b] px-8 py-4 rounded-xl font-bold w-full shadow-xl uppercase tracking-widest">¡Genial!</button>
+        </div>
+    </div>
+
+    <!-- MODAL POLÍTICA DE PRIVACIDAD -->
+    <div id="privacy-policy-modal" class="modal-overlay" onclick="window.closePrivacyPolicyModal()">
+        <div class="modal-contenido" onclick="event.stopPropagation()">
+            <span class="boton-cerrar" onclick="window.closePrivacyPolicyModal()">&times;</span>
+            <div class="texto-legal" id="privacy-content">
+                <!-- Contenido de privacidad existente -->
+                <h2>Política de Privacidad</h2>
+                <p><strong>Fecha de última actualización:</strong> 26 de enero de 2026</p>
+                <p>En la organización de la Comunión de {{PROTAGONISTA}}, nos tomamos muy en serio la privacidad...</p>
+                <!-- ... resto del contenido ... -->
+                <h3>1. Responsable del Tratamiento</h3>
+                <p><strong>Gestión del Evento:</strong> La familia organizadora es responsable de los datos de
+                    asistencia y organización.</p>
+                <p><strong>Gestión de Promociones y Alojamiento:</strong> Los datos técnicos de la web y los facilitados
+                    en el formulario de "Canje de Regalo" son gestionados por PujalteFotografía...</p>
+                <h3>2. Datos que Recogemos</h3>
+                <ul>
+                    <li><strong>Asistencia (RSVP):</strong> Nombre, apellidos, confirmación de asistencia y necesidades
+                        alimentarias.</li>
+                    <li><strong>Canje de Regalo:</strong> Datos de contacto básicos facilitados voluntariamente.</li>
+                    <li><strong>Galería de Fotos:</strong> Imágenes donde podrías aparecer.</li>
+                </ul>
+                <h3>4. Conservación de los Datos</h3>
+                <p>Toda la información personal se conservará únicamente hasta el <strong>1 de julio de 2026</strong>. A
+                    partir de dicha fecha, se procederá al borrado automático y definitivo.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TÉRMINOS Y CONDICIONES (NUEVO) -->
+    <div id="terms-modal" class="modal-overlay" onclick="window.closeTermsModal()">
+        <div class="modal-contenido" onclick="event.stopPropagation()">
+            <span class="boton-cerrar" onclick="window.closeTermsModal()">&times;</span>
+            <div class="texto-legal">
+                <h2 class="font-cursive text-3xl mb-6">Términos y Condiciones de Uso</h2>
+
+                <div class="space-y-6 text-sm leading-relaxed">
+                    <p><strong>1. PROPIEDAD INTELECTUAL Y TITULARIDAD</strong><br>
+                        Todo el contenido de Gestión de Eventos, incluyendo de manera enunciativa más no limitativa: el
+                        código fuente, algoritmos, bases de datos, diseños de interfaz (UI/UX), logotipos, textos,
+                        gráficos, y arquitectura de software, es propiedad exclusiva de <strong>JOSÉ PUJALTE
+                            MOLINA</strong> y está protegido por las leyes nacionales e internacionales de derechos de
+                        autor y propiedad industrial.</p>
+
+                    <p><strong>2. LICENCIA DE USO LIMITADA</strong><br>
+                        <strong>PUJALTEFOTOGRAFÍA</strong> otorga al usuario una licencia personal, revocable, no
+                        exclusiva y no transferible para utilizar la aplicación únicamente para los fines previstos en
+                        su
+                        funcionamiento normal. Bajo ninguna circunstancia esta licencia implica una venta o cesión de
+                        los derechos sobre el software.
+                    </p>
+
+                    <p><strong>3. RESTRICCIONES DE USO (LO PROHIBIDO)</strong><br>
+                        El usuario se compromete a no realizar, ni permitir que terceros realicen, las siguientes
+                        acciones:
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li><strong>Ingeniería Inversa:</strong> Intentar descompilar, copiar, modificar o extraer el
+                            código fuente de la aplicación.</li>
+                        <li><strong>Reproducción:</strong> Copiar el diseño o la apariencia de la interfaz para crear
+                            una
+                            aplicación derivada o similar.</li>
+                        <li><strong>Explotación:</strong> Utilizar cualquier marca, nombre comercial o logo de la App
+                            sin
+                            autorización previa por escrito.</li>
+                        <li><strong>Distribución:</strong> Alquilar, arrendar, vender o redistribuir el acceso a la
+                            aplicación a terceros.</li>
+                    </ul>
+                    </p>
+
+                    <p><strong>4. ACTUALIZACIONES Y MODIFICACIONES</strong><br>
+                        El Propietario se reserva el derecho de modificar, suspender o interrumpir cualquier aspecto de
+                        la aplicación en cualquier momento, incluyendo la disponibilidad de funciones o bases de datos,
+                        sin previo aviso y sin responsabilidad alguna frente al usuario.</p>
+
+                    <p><strong>5. LIMITACIÓN DE RESPONSABILIDAD</strong><br>
+                        La aplicación se entrega "tal cual" (as is). <strong>PUJALTEFOTOGRAFIA</strong> no garantiza que
+                        el software esté libre de errores o interrupciones. En ningún caso seremos responsables por
+                        daños indirectos, pérdida de datos o beneficios derivados del uso o la imposibilidad de uso de
+                        la App.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE BIENVENIDA LEGAL (ELIMINADO - AHORA ESTÁ DEBAJO DEL CORAZÓN) -->
+
+    <!-- MODAL REPORTE ADMIN (Diseño Premium) -->
+    <div id="admin-report-modal" class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="window.closeAdminReport()"></div>
+        <div
+            class="relative bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl max-w-sm w-full shadow-2xl animate-fade-in-up text-center">
+            <h3 class="text-2xl font-bold text-white mb-2 font-display">📊 Informe del Evento</h3>
+            <div class="w-16 h-1 bg-[#CDB67E] mx-auto mb-6 rounded-full"></div>
+
+            <div id="admin-report-content" class="text-left space-y-4 text-white/90 text-sm">
+                <!-- Contenido dinámico -->
+            </div>
+
+            <button onclick="window.closeAdminReport()"
+                class="mt-8 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-full transition-all border border-white/30 backdrop-blur-md w-full">
+                Cerrar Informe
+            </button>
+        </div>
+    </div>
+
+    <!-- Script de Inicialización de Icono Dinámico -->
+
+    <!-- SALVAVIDAS: Si app.js falla, este mensaje saldrá al pulsar el corazón -->
+    <script>
+        // Definimos una función temporal. Si app.js carga bien, la sobrescribirá. Si falla, se ejecutará esta.
+        window.toggleMusic = function () {
+            alert("⚠️ ERROR DE CARGA:\n\nLa lógica de la app no se ha cargado. Posibles causas:\n1. Faltan archivos (como admin.js).\n2. Estás abriendo el archivo con doble clic (necesitas un servidor local o VS Code Live Server).\n\nRevisa la consola (F12) para ver el error rojo.");
+        };
+    </script>
+
+    <!-- Cargar config.js antes de app.js -->
+    <script type="module" src="/apps/js/main.js"></script>
+
+
+
+</body>
+
+</html>

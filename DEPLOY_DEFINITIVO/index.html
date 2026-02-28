@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="app-title">Mi Primera Comunión</title>
+
+    <script>
+        // CONFIGURACIÓN DE TEMA Y DETECCIÓN DE CÁMARA (FIX V12)
+        (function () {
+            const savedTheme = localStorage.getItem('selected-theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'camera') {
+                document.documentElement.classList.add('camera-entry-mode');
+                sessionStorage.setItem('camera_action_pending', 'true');
+            }
+        })();
+    </script>
+    <style>
+        /* Estilos críticos para evitar parpadeos de interfaz */
+        .camera-entry-mode #heart-intro {
+            display: none !important;
+        }
+
+        .camera-entry-mode #camera-intro {
+            display: flex !important;
+        }
+
+        #camera-intro {
+            display: none;
+        }
+
+        /* Asegurar que el contenedor premium tenga el fondo correcto si se activa el modo cámara */
+        .camera-entry-mode #music-container {
+            background: radial-gradient(circle at center, #ffffff 0%, #f0fdf4 100%) !important;
+        }
+
+        .camera-entry-mode #initial-legal-check {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Librerías de Terceros -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+
+    <!-- Estilos V7 (Bypass de Caché) -->
+    <!-- Motor Maestro V7 -->
+    <script type="module" crossorigin src="./js/motor_v7.js?v=2.0"></script>
+    <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
+    <link rel="modulepreload" crossorigin href="./js/config.js?v=2.0">
+    <link rel="stylesheet" crossorigin href="./css/main.css?v=2.0">
+</head>
+
+<body class="antialiased locked">
+
+    <!-- BOTONES DE CONTROL SUPERIOR -->
+    <button onclick="window.toggleMute()" class="theme-btn-public fixed top-5 right-20 z-[1001]" id="mute-toggle"
+        aria-label="Silenciar">
+        <span id="mute-icon-display">🔊</span>
+    </button>
+    <button onclick="window.toggleThemeSwitch()" class="theme-btn-public fixed top-5 right-5 z-[1001]"
+        id="public-theme-toggle" aria-label="Modo Oscuro">
+        <span id="theme-icon-display">☀️</span>
+    </button>
+
+    <!-- ALERTA PERSONALIZADA -->
+    <div id="custom-alert-overlay">
+        <div class="custom-alert-card">
+            <span class="text-5xl mb-4 block" id="alert-icon">⚠️</span>
+            <p id="alert-text" class="text-emerald-900 font-bold text-lg mb-6 leading-relaxed"></p>
+            <button onclick="window.closeCustomAlert()"
+                class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-md">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast-new">
+        <span id="toast-icon"></span>
+        <span id="toast-text"></span>
+    </div>
+
+    <!-- VISOR DE FOTOS (LIGHTBOX) -->
+    <div id="lightbox" onclick="window.closeLightbox()" class="modal-overlay">
+        <div class="relative max-w-[90vw] max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <button onclick="window.closeLightbox()"
+                class="absolute top-0 right-0 -mt-2 -mr-2 text-white text-4xl z-10 bg-black/40 rounded-full w-10 h-10 flex items-center justify-center leading-none p-0">&times;</button>
+            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl">
+            <div id="lightbox-comment-form" class="hidden mt-4 w-full max-w-lg flex flex-col gap-4">
+                <div id="lightbox-comments-list"
+                    class="w-full max-h-40 overflow-y-auto bg-gray-900/50 p-3 rounded-lg space-y-3 text-white text-sm">
+                </div>
+                <div class="flex gap-2 items-start">
+                    <textarea id="lightbox-comment-input" rows="1"
+                        class="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-emerald-500 outline-none"
+                        placeholder="Añadir un comentario..."></textarea>
+                    <button onclick="window.savePhotoComment()"
+                        class="px-6 py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY DE INTRODUCCIÓN (FOTOS FLASH) -->
+    <div id="intro-overlay" class="intro-photo-overlay">
+        <img id="intro-flash-img" src="" class="photo-flash">
+    </div>
+
+    <!-- PANTALLA DE ENTRADA (INTRO) -->
+    <div id="music-container"
+        class="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-white transition-opacity duration-1000">
+
+        <!-- MODO 1: CORAZÓN (TRADICIONAL) -->
+        <div id="heart-intro" class="flex flex-col items-center transition-opacity duration-500">
+            <button id="start-btn" onclick="window.toggleMusic()"
+                class="music-btn animate-heartbeat cursor-pointer w-[135px] h-[135px] bg-white rounded-full flex items-center justify-center border-4 border-emerald-600 shadow-xl overflow-hidden relative">
+                <div id="music-display" class="transition-opacity duration-300 flex items-center justify-center">
+                    <img src="./assets/corazon_01.webp" class="w-20 h-20 object-contain" alt="Entrar">
+                </div>
+                <div id="countdown-display"
+                    class="absolute inset-0 flex items-center justify-center font-bold text-[#C5A880] opacity-0 pointer-events-none font-cursive"
+                    style="font-size: 4rem !important; text-shadow: 0 2px 10px rgba(197, 168, 128, 0.3); font-weight: 800; line-height: 1; margin-top: -8px;">
+                    3</div>
+            </button>
+            <p id="start-instruction"
+                class="font-cursive text-3xl text-emerald-700 mt-6 transition-opacity duration-500">Toca mi corazón</p>
+        </div>
+
+        <!-- MODO 2: CÁMARA PREMIUM (QR) -->
+        <div id="camera-intro"
+            class="flex flex-col items-center justify-center p-6 text-center animate-fade-in w-full h-full">
+            <!-- Elementos decorativos flotantes -->
+            <span class="floating-deco text-4xl" style="top: 15%; left: 10%;">✨</span>
+            <span class="floating-deco text-4xl" style="top: 25%; right: 15%; animation-delay: 1s;">📸</span>
+            <span class="floating-deco text-3xl" style="bottom: 20%; left: 20%; animation-delay: 2s;">🌟</span>
+
+            <div class="relative mb-10">
+                <div class="flash-ring"></div>
+                <div class="flash-ring" style="animation-delay: 1s;"></div>
+
+                <div class="relative">
+                    <!-- BOTÓN VISUAL (Sin clicks, solo diseño) -->
+                    <button id="start-btn-camera-visual"
+                        class="camera-shutter-anim w-44 h-44 bg-white rounded-full flex items-center justify-center border-8 border-emerald-600 shadow-[0_25px_60px_rgba(6,78,59,0.25)] relative z-10 pointer-events-none transition-transform">
+                        <svg class="w-24 h-24 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                                opacity=".3" />
+                            <path
+                                d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+                            <path
+                                d="M12 17c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-8c1.65 0 3 1.35 3 3s-1.35 3-3 3-3-1.35-3-3 1.35-3 3-3z" />
+                        </svg>
+                    </button>
+                    <!-- DISPARADOR REAL INVISIBLE (ENCIMA) -->
+                    <input type="file" id="camera-direct-trigger" accept="image/*" capture="environment"
+                        class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer active:scale-95 transition-transform"
+                        onchange="window.handleInstantCamera(this)">
+                </div>
+            </div>
+
+            <h1 class="font-cursive text-6xl text-emerald-700 mb-6 drop-shadow-sm">¡Sonríe!</h1>
+            <p class="text-xl font-black text-emerald-800 uppercase tracking-[0.2em] leading-tight mb-2">
+                Toca para subir <br> <span class="text-emerald-500 text-3xl">tus fotos</span>
+            </p>
+            <p class="text-[10px] text-emerald-900/40 font-bold uppercase tracking-[0.4em] mt-8">
+                Captura y comparte el momento
+            </p>
+
+            <!-- LOGO ABAJO (NUEVO V13.1) -->
+            <div class="mt-12 opacity-80">
+                <img id="camera-intro-logo" src="./assets/new_lobo_black.webp"
+                    class="h-24 mx-auto w-auto object-contain" alt="Pujalte Logo">
+            </div>
+        </div>
+
+        <div id="initial-legal-check" class="mt-8 flex flex-col items-center px-6 text-center max-w-[280px]">
+            <label class="flex items-start gap-3 cursor-pointer group">
+                <input type="checkbox" id="legal-checkbox-inicio" class="mt-1 w-5 h-5 accent-emerald-600 rounded">
+                <span class="text-[10px] uppercase font-bold text-emerald-800/60 leading-tight">
+                    Acepto la <a href="#" onclick="window.showPrivacyPolicyModal(); event.preventDefault();"
+                        class="underline text-emerald-700">Privacidad</a> y los <a href="#"
+                        onclick="window.showTermsModal(); event.preventDefault();"
+                        class="underline text-emerald-700">Términos</a> para entrar.
+                </span>
+            </label>
+        </div>
+    </div>
+    </div>
+
+    <!-- APP WRAPPER -->
+    <div id="main-content">
+        <section id="inicio"
+            class="flex flex-col items-center justify-center text-center p-6 py-12 rounded-b-[40px] transition-all duration-500 overflow-hidden">
+            <div class="mb-4 mx-auto w-max heart-container">
+                <img id="header-icon" src="./assets/PALOMA.png" class="h-20 w-20 object-contain">
+            </div>
+            <h1 class="font-cursive text-emerald-700 mb-8 leading-tight" id="protagonista-nombre">Alberto</h1>
+            <p class="font-black uppercase tracking-[0.5em] text-emerald-600/70 mb-8 opacity-80"
+                id="protagonista-subtitulo">Mi Primera Comunión</p>
+
+            <div class="flex gap-2 mt-4 mb-4 justify-center">
+                <div id="photo-card-1"
+                    class="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-md border-4 border-white"><img
+                        src="" class="w-full h-full object-cover"></div>
+                <div id="photo-card-2"
+                    class="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-md border-4 border-white"><img
+                        src="" class="w-full h-full object-cover"></div>
+                <div id="photo-card-3"
+                    class="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-md border-4 border-white"><img
+                        src="" class="w-full h-full object-cover"></div>
+            </div>
+
+            <p class="text-lg font-bold text-emerald-800 tracking-wide mt-6 mb-4" id="evento-fecha-texto">Próximamente
+            </p>
+            <div class="flex space-x-3 mb-10 justify-center">
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px]"><span id="days"
+                        class="block text-2xl font-bold text-emerald-700">00</span><span
+                        class="text-[9px] uppercase font-bold text-emerald-800">Días</span></div>
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px]"><span id="hours"
+                        class="block text-2xl font-bold text-emerald-700">00</span><span
+                        class="text-[9px] uppercase font-bold text-emerald-800">Hrs</span></div>
+                <div class="bg-white/80 p-3 shadow-sm rounded-2xl min-w-[60px]"><span id="minutes"
+                        class="block text-2xl font-bold text-emerald-700">00</span><span
+                        class="text-[9px] uppercase font-bold text-emerald-800 text-center">Min</span></div>
+            </div>
+
+        </section>
+
+        <div id="mod-nav"></div>
+        <div id="mod-map"></div>
+        <div id="mod-asistencia"></div>
+
+        <!-- ⭐ SECCIÓN RESEÑAS -->
+        <section id="resenas-section" class="p-6 max-w-md mx-auto mt-16 text-center">
+            <h2 class="font-cursive text-4xl text-emerald-700 mb-8">Tras mis recuerdos</h2>
+            <div class="card p-8 bg-emerald-50/40 border-2 border-white shadow-inner relative overflow-hidden">
+                <div class="review-box">
+                    <div class="review-item active">
+                        <div class="flex justify-center text-orange-400 mb-3 text-2xl">⭐⭐⭐⭐⭐</div>
+                        <p class="text-lg italic text-gray-700 leading-relaxed italic">"Las sesiones de estudio capturan
+                            la esencia natural de los niños. ¡Repetiremos seguro!"</p>
+                        <p class="font-bold text-emerald-800 mt-4">- Familia Martínez (Estudio) -</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-10 px-4">
+                <p class="text-emerald-800 text-xl font-medium mb-6 italic">"¡Qué fotos más bonitas y qué aplicación más
+                    chula ha preparado mi fotógrafo!"</p>
+                <button id="like-btn" onclick="window.handleLikeClick(event)"
+                    class="btn-custom inline-block bg-emerald-600 text-white px-12 py-6 rounded-2xl font-bold shadow-md text-2xl">❤️
+                    Me encanta</button>
+            </div>
+            <div id="gift-reveal" class="hidden mt-8 reveal-animation">
+                <button onclick="window.showLeadForm()"
+                    class="btn-custom bg-gradient-to-r from-orange-400 to-red-500 text-white px-10 py-6 rounded-2xl font-bold shadow-lg animate-gift border-2 border-white text-2xl">✨
+                    ¡Tu regalo te espera! 🎁</button>
+            </div>
+        </section>
+
+        <!-- 🎁 LEAD FORM REGALO (RESTAURADO) -->
+        <section id="marketing-gift-form" class="hidden p-6 max-w-md mx-auto mt-16 text-center reveal-animation">
+            <div class="card p-10 border-2 border-orange-200 bg-orange-50/20">
+                <img src="./assets/logo_verde.webp" class="h-24 mx-auto mb-6 footer-logo-style"
+                    alt="Pujalte Creative Studio">
+                <h2 class="font-cursive text-4xl text-orange-700 mb-4">Un Regalo para Ti</h2>
+                <div
+                    class="bg-white p-8 rounded-2xl border border-orange-100 mb-10 text-lg text-gray-700 leading-relaxed">
+                    Te regalamos un <span id="gift-discount-value" class="font-bold text-orange-600 text-2xl">...% de
+                        descuento</span> en
+                    cualquiera de nuestros packs de sesiones.
+                    <div id="urgency-counter-container" class="mt-4 text-center">
+                        <p class="text-sm text-gray-600 mb-2">Esta oferta expira en:</p>
+                        <div id="urgency-counter" class="text-2xl md:text-3xl font-bold text-gray-800 tracking-widest">
+                            <span id="urgency-hours">00</span>h <span id="urgency-minutes">00</span>m <span
+                                id="urgency-seconds">00</span>s
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-6 text-left">
+                    <input type="text" id="lead-name" placeholder="Tu nombre"
+                        class="w-full p-6 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+                    <input type="tel" id="lead-phone" placeholder="Tu teléfono"
+                        class="w-full p-6 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+                    <input type="email" id="lead-email" placeholder="Tu email"
+                        class="w-full p-6 border-2 border-orange-100 rounded-2xl text-xl outline-none">
+
+                    <div class="flex items-start gap-3 px-2 py-4">
+                        <input type="checkbox" id="privacy-check" class="w-6 h-6 mt-1 accent-orange-500">
+                        <label for="privacy-check" class="text-sm text-gray-500 leading-snug">
+                            He leído y acepto la <a href="#" onclick="window.showPrivacyPolicyModal(); return false;"
+                                class="text-orange-600 underline">política de privacidad</a>.
+                        </label>
+                    </div>
+                    <button onclick="window.confirmarDescuento()"
+                        class="btn-custom bg-orange-500 text-white w-full py-6 rounded-2xl font-bold shadow-lg text-2xl">¡Lo
+                        quiero! 🤗</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="mod-galeria"></div>
+        <div id="mod-regalo"></div>
+        <div id="mod-admin"></div>
+
+        <!-- PIE DE PÁGINA -->
+        <footer class="w-full text-center p-8 mt-16">
+            <img src="./assets/logo_verde.webp" class="h-40 mx-auto mb-4 footer-logo-style cursor-pointer" alt="Admin"
+                onclick="window.handleSecretButtonClick()" id="admin-trigger-v2">
+            <p class="font-cursive text-emerald-800 text-lg mb-4">"Más que fotografía, tus mejores recuerdos"</p>
+            <a href="https://www.instagram.com/pujaltefotografia/" target="_blank"
+                class="text-sm text-gray-500 hover:text-emerald-700 block mb-4">@pujaltefotografia</a>
+            <div class="flex justify-center gap-4 text-[10px] uppercase font-bold text-gray-400">
+                <a href="#" onclick="window.showPrivacyPolicyModal(); event.preventDefault();">Privacidad</a>
+                <span>•</span>
+                <a href="#" onclick="window.showTermsModal(); event.preventDefault();">Términos</a>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-6">Powered by <span class="font-bold text-emerald-700">Pujalte
+                    Creative Studio</span></p>
+        </footer>
+    </div>
+
+    <!-- PANTALLA BIENVENIDA ADMIN (RESTAURADA) -->
+    <div id="admin-welcome-screen" class="modal-overlay">
+        <div class="card p-10 max-w-sm mx-auto text-center bg-[#064e3b] text-white border-none shadow-2xl">
+            <span class="text-7xl mb-6 block mx-auto">🛠️</span>
+            <h2 class="font-cursive text-3xl mb-6">¡Hola, Admin!</h2>
+            <p class="text-sm opacity-90 mb-8 leading-relaxed">Completa los formularios de <b>tus perfiles y los de tus
+                    proveedores</b> y envíalo por email <b>pulsando en el icono azul</b>.</p>
+            <button onclick="window.closeAdminWelcome()"
+                class="btn-custom bg-white text-emerald-900 px-8 py-4 rounded-xl font-bold w-full shadow-xl uppercase tracking-widest">CUENTA
+                CON ELLO</button>
+        </div>
+    </div>
+
+    <!-- MODALES VARIOS -->
+    <div id="bizum-modal" class="modal-overlay" onclick="window.closeBizumModal()">
+        <div class="bizum-card" onclick="event.stopPropagation()">
+            <img src="./assets/Logo-Bizum.webp" class="h-10 mx-auto mb-6" style="filter: brightness(0) invert(1);"
+                alt="Bizum">
+            <p class="text-4xl font-bold tracking-widest mb-4" id="view-bizum-phone"></p>
+            <button onclick="window.closeBizumModal()"
+                class="w-full bg-white text-[#00aae4] py-4 rounded-xl font-bold uppercase animate-heartbeat">Muchas
+                Gracias</button>
+        </div>
+    </div>
+
+    <div id="bank-modal" class="modal-overlay" onclick="window.closeBankModal()">
+        <div class="bank-modal-card p-8 bg-white rounded-3xl text-center" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-bold mb-6 text-emerald-800">Datos Bancarios</h3>
+            <div id="bank-details-content" class="text-left space-y-4 mb-6">
+                <div class="bg-emerald-50 p-3 rounded-lg">
+                    <p class="text-[10px] uppercase font-bold text-emerald-600">Banco</p>
+                    <p id="bank-name" class="font-bold text-emerald-800"></p>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-lg">
+                    <p class="text-[10px] uppercase font-bold text-emerald-600">Beneficiario</p>
+                    <p id="bank-beneficiary" class="font-bold text-emerald-800"></p>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-lg">
+                    <p class="text-[10px] uppercase font-bold text-emerald-600">Concepto</p>
+                    <p id="bank-concept" class="font-bold text-emerald-800"></p>
+                </div>
+                <!-- NUEVO CAMPO IBAN REGALO CON COPIA -->
+                <div class="bg-emerald-600 p-4 rounded-xl cursor-pointer active:scale-95 transition-all shadow-md group"
+                    onclick="window.copyGeneralIBANToClipboard(this)">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-[8px] uppercase font-black text-white/60 tracking-widest">Número de Cuenta (IBAN)
+                        </p>
+                        <span class="text-xs opacity-50 text-white">📋</span>
+                    </div>
+                    <p id="bank-iban-display" class="font-bold text-white text-sm break-all font-mono"></p>
+                    <p
+                        class="text-[8px] text-white/40 italic mt-2 text-center group-hover:text-white/70 transition-colors uppercase font-black">
+                        Toca para copiar</p>
+                </div>
+            </div>
+            <button onclick="window.closeBankModal()"
+                class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold uppercase">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMACIÓN REGALO -->
+    <div id="gift-confirmation-modal" class="modal-overlay" onclick="window.closeGiftConfirmationModal()">
+        <div class="card p-10 w-full max-w-sm text-center relative mx-auto" onclick="event.stopPropagation()"
+            style="background: linear-gradient(135deg, #b89d64 0%, #8a6d3b 100%); color: white;">
+            <span class="text-7xl mb-6 block mx-auto animate-gift">🎁</span>
+            <h2 class="font-cursive text-3xl mb-4">¡Enhorabuena!</h2>
+            <p class="text-lg opacity-90 mb-8 leading-relaxed">Tu descuento está en camino. Contactaremos contigo muy
+                pronto.</p>
+            <div id="review-gift-container" class="hidden mt-6 pt-6 border-t border-white/20">
+                <p class="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-3">¿Nos apoyas con una reseña?
+                    ⭐⭐⭐⭐⭐
+                </p>
+                <a id="google-review-link-gift" href="#" target="_blank"
+                    class="bg-white/20 hover:bg-white/30 text-white py-3 px-6 rounded-xl block transition-all border border-white/40 text-xs font-bold uppercase tracking-wider">
+                    DEJAR MI RESEÑA
+                </a>
+            </div>
+            <button onclick="window.closeGiftConfirmationModal()"
+                class="mt-6 text-white/60 text-[10px] uppercase font-bold tracking-[0.2em] hover:text-white transition-colors">Ahora
+                no, gracias</button>
+        </div>
+    </div>
+
+    <!-- MODAL REPORTE ADMIN -->
+    <div id="admin-report-modal" class="fixed inset-0 z-[10000] hidden flex flex-col items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="window.closeAdminReport()"></div>
+        <div
+            class="relative bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl max-w-sm w-full shadow-2xl animate-fade-in-up text-center">
+            <h3 class="text-2xl font-bold text-white mb-2 font-display">📊 Informe del Evento</h3>
+            <div class="w-16 h-1 bg-[#CDB67E] mx-auto mb-6 rounded-full"></div>
+            <div id="admin-report-content" class="text-left space-y-4 text-white/90 text-sm"></div>
+            <button onclick="window.closeAdminReport()"
+                class="mt-8 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-full transition-all border border-white/30 backdrop-blur-md w-full">Cerrar
+                Informe</button>
+        </div>
+    </div>
+
+    <!-- MODAL PIN ADMIN EXCEPCIONALMENTE IGUAL AL BACKUP -->
+    <div id="pin-modal" class="modal-overlay" onclick="window.closePinModal()">
+        <div class="card p-10 w-full max-w-sm text-center relative mx-auto" onclick="event.stopPropagation()">
+            <button onclick="window.closePinModal()"
+                class="absolute top-4 right-4 text-emerald-800 text-2xl">&times;</button>
+            <h2 class="font-cursive text-3xl text-emerald-700 mb-8">Acceso Admin</h2>
+            <div class="relative mx-auto mb-10 max-w-[280px]">
+                <input type="text" id="pin-input"
+                    class="w-full text-center text-2xl text-emerald-800 font-mono tracking-widest min-h-[50px] bg-emerald-50 rounded-lg py-3 px-4 border-2 border-emerald-200 focus:outline-none focus:border-emerald-500"
+                    oninput="window.syncPinInput(this.value)" maxlength="12">
+                <button onclick="window.pasteFromClipboard()"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-2xl hover:scale-110 transition-transform">📋</button>
+            </div>
+            <div class="grid grid-cols-3 gap-5 max-w-[300px] mx-auto justify-items-center">
+                <button onclick="window.enterPinDigit('1')" class="keypad-btn">1</button>
+                <button onclick="window.enterPinDigit('2')" class="keypad-btn">2</button>
+                <button onclick="window.enterPinDigit('3')" class="keypad-btn">3</button>
+                <button onclick="window.enterPinDigit('4')" class="keypad-btn">4</button>
+                <button onclick="window.enterPinDigit('5')" class="keypad-btn">5</button>
+                <button onclick="window.enterPinDigit('6')" class="keypad-btn">6</button>
+                <button onclick="window.enterPinDigit('7')" class="keypad-btn">7</button>
+                <button onclick="window.enterPinDigit('8')" class="keypad-btn">8</button>
+                <button onclick="window.enterPinDigit('9')" class="keypad-btn">9</button>
+                <button onclick="window.validatePin()" class="keypad-btn bg-green-50 !text-green-600">✓</button>
+                <button onclick="window.enterPinDigit('0')" class="keypad-btn">0</button>
+                <button onclick="window.clearPin()" class="keypad-btn bg-red-50 !text-red-600">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELEMENTOS INVISIBLES -->
+    <div class="hidden">
+        <audio id="bg-music" loop>
+            <source id="bg-music-src" src="">
+        </audio>
+        <audio id="sfx-heartbeat">
+            <source id="sfx-heartbeat-src" src="">
+        </audio>
+        <audio id="sfx-key">
+            <source id="sfx-key-src" src="">
+        </audio>
+        <audio id="sfx-shutter">
+            <source id="sfx-shutter-src" src="">
+        </audio>
+        <div id="bizum-concept-protagonista"></div>
+        <div id="bank-concept"></div>
+        <div id="ceremony-name"></div>
+        <div id="ceremony-time"></div>
+        <div id="ceremony-location"></div>
+        <div id="banquet-name"></div>
+        <div id="banquet-time"></div>
+        <div id="banquet-location"></div>
+    </div>
+
+</body>
+
+</html>

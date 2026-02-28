@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperWeb Pro - Basecode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --secondary: #6366f1;
+            --bg: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --nav-bg: rgba(3, 7, 18, 0.85);
+            --text: #f9fafb;
+            --glow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .side-nav {
+            width: 280px;
+            height: 100vh;
+            background: var(--nav-bg);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0;
+            z-index: 100;
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .brand-logo {
+            padding: 0 20px 40px 20px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--text);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 16px 24px;
+            margin: 8px 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .nav-item:hover::before {
+            left: 150%;
+        }
+
+        .nav-item.active {
+            transform: scale(1.02) translateX(4px);
+        }
+
+        /* SUPER ADMIN (Emerald) */
+        .nav-item.admin-access {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .nav-item.admin-access:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.02) 100%);
+            color: #10b981;
+        }
+
+        .nav-item.admin-access.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.7) 100%);
+            color: #000;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            border: none;
+        }
+
+        /* APP MAKER (Sky Blue) */
+        .nav-item.maker-access {
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        .nav-item.maker-access:hover {
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.25);
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.02) 100%);
+            color: #0ea5e9;
+        }
+
+        .nav-item.maker-access.active {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(14, 165, 233, 0.7) 100%);
+            color: #000;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+            border: none;
+        }
+
+        /* FOTÓGRAFOS (Gold) */
+        .nav-item.vip-access {
+            border-color: rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+        }
+
+        .nav-item.vip-access:hover {
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.02) 100%);
+            color: #fff;
+        }
+
+        .nav-item.vip-access.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(212, 175, 55, 0.7) 100%);
+            color: #000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            border: none;
+        }
+
+        /* ASIGNAR EVENTOS (Indigo) */
+        .nav-item.assign-access {
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-item.assign-access:hover {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.02) 100%);
+            color: #6366f1;
+        }
+
+        .nav-item.assign-access.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(99, 102, 241, 0.7) 100%);
+            color: #000;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+            border: none;
+        }
+
+        .nav-label {
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: 0.3s;
+        }
+
+        #viewer-container {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+            perspective: 1000px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: opacity 0.4s ease, filter 0.4s ease;
+            background: transparent;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(16, 185, 129, 0.05);
+            z-index: 1000;
+        }
+
+        #loader-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #10b981, #6366f1, #ec4899);
+            background-size: 200% 100%;
+            animation: moveGradient 2s linear infinite;
+            box-shadow: 0 0 15px var(--primary);
+            transition: width 0.4s ease;
+        }
+
+        @keyframes moveGradient {
+            0% {
+                background-position: 100% 0%;
+            }
+
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        .iframe-loading {
+            opacity: 0.2;
+            filter: blur(10px);
+        }
+
+        #refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 1.3rem;
+            transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        #refresh-btn:active {
+            transform: rotate(180deg) scale(0.9);
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+
+            70% {
+                transform: scale(1.2);
+                opacity: 0.5;
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div id="loader-bar"></div>
+    </div>
+
+    <div id="refresh-btn" onclick="reloadIframe()">🔄</div>
+
+    <!-- Menú Lateral -->
+    <nav class="side-nav">
+        <div class="brand-logo">
+            BASECODE<br>
+            <span style="font-size: 0.75rem; opacity: 0.6; font-weight: 400; letter-spacing: 2px;">Comando 2.0</span>
+        </div>
+
+        <a href="super_admin.html" target="main-frame" class="nav-item admin-access active" onclick="setActive(this)">
+            <span class="nav-icon">👑</span>
+            <span class="nav-label">Super Admin</span>
+        </a>
+        <a href="creador_eventos.html" target="main-frame" class="nav-item maker-access" onclick="setActive(this)">
+            <span class="nav-icon">🛠️</span>
+            <span class="nav-label">App Maker</span>
+        </a>
+
+        <!-- Premium Photographer Access -->
+        <a href="acceso_fotografo.html?admin=true" target="main-frame" class="nav-item vip-access"
+            onclick="setActive(this)">
+            <span class="nav-icon">📸</span>
+            <span class="nav-label">Fotógrafos</span>
+        </a>
+
+        <a href="javascript:void(0);" class="nav-item assign-access" onclick="triggerMigration(this)">
+            <span class="nav-icon">🔗</span>
+            <span class="nav-label">Asignar Eventos</span>
+        </a>
+
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            System Active
+        </div>
+    </nav>
+
+    <!-- Contenedor del panel derecho -->
+    <div id="viewer-container">
+        <iframe id="main-frame" src="super_admin.html" name="main-frame"></iframe>
+    </div>
+
+    <script>
+        const frame = document.getElementById('main-frame');
+        const loaderBar = document.getElementById('loader-bar');
+
+        function setActive(el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            loaderBar.style.width = '40%';
+            frame.classList.add('iframe-loading');
+        }
+
+        function reloadIframe() {
+            frame.classList.add('iframe-loading');
+            loaderBar.style.width = '50%';
+            frame.src = frame.src;
+        }
+
+        frame.onload = () => {
+            loaderBar.style.width = '100%';
+            setTimeout(() => {
+                loaderBar.style.width = '0';
+                frame.classList.remove('iframe-loading');
+            }, 600);
+        };
+
+        function triggerMigration(el) {
+            setActive(el);
+            const contentWindow = frame.contentWindow;
+
+            // Si ya estamos en super_admin.html, abrimos el modal
+            if (contentWindow.location.href.includes('super_admin.html')) {
+                if (typeof contentWindow.openMigration === 'function') {
+                    contentWindow.openMigration();
+                }
+
+                // CRÍTICO: Quitar el efecto blur y barra de carga porque no habrá evento onload si no cambia la URL
+                setTimeout(() => {
+                    loaderBar.style.width = '100%';
+                    setTimeout(() => {
+                        loaderBar.style.width = '0';
+                        frame.classList.remove('iframe-loading');
+                    }, 400);
+                }, 100);
+
+            } else {
+                // Si no, cargamos super_admin.html primero y luego abrimos el modal
+                frame.src = 'super_admin.html';
+
+                const originalOnLoad = frame.onload;
+                frame.onload = () => {
+                    if (originalOnLoad) originalOnLoad();
+                    setTimeout(() => {
+                        if (typeof frame.contentWindow.openMigration === 'function') {
+                            frame.contentWindow.openMigration();
+                        }
+                    }, 500); // Pequeño delay de 500ms para asegurar renderizado correcto
+
+                    // Restauramos onload
+                    frame.onload = originalOnLoad;
+                };
+            }
+        }
+    </script>
+</body>
+
+</html>

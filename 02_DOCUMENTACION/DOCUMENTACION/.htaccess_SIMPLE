@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /apps/
+
+# --- EXCEPCIONES: Carpetas y archivos específicos ---
+RewriteRule ^(admin|gestion|comuniones2026|assets|js|modulos)(/.*)?$ - [L,NC]
+RewriteRule ^(acceso\.html|mail_handler\.php|send_mail\.php|index_PRUEBA\.html)$ - [L,NC]
+
+# --- ARCHIVOS Y DIRECTORIOS REALES ---
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# --- MOTOR MAESTRO ---
+RewriteRule . index.html [L]
+</IfModule>
+
+Options -Indexes

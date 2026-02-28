@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Herramienta de Renombrado - Firebase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen">
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700">
+        <h1 class="text-2xl font-bold mb-6 text-center text-emerald-400">Migrador de Eventos</h1>
+
+        <div class="space-y-4">
+            <div class="p-4 bg-slate-700/50 rounded-lg">
+                <p class="text-sm text-slate-400 uppercase font-bold tracking-wider mb-1">Origen</p>
+                <p class="text-xl font-mono">claudia-2026</p>
+            </div>
+
+            <div class="flex justify-center">
+                <span class="text-3xl">⬇️</span>
+            </div>
+
+            <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
+                <p class="text-sm uppercase font-bold tracking-wider mb-1">Destino</p>
+                <p class="text-xl font-mono font-bold">demo</p>
+            </div>
+        </div>
+
+        <button id="btn-migrar"
+            class="w-full mt-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">
+            EJECUTAR CAMBIO EN FIREBASE
+        </button>
+
+        <div id="status" class="mt-6 text-center text-sm hidden">
+            <p id="status-text"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { config } from '../js/config.js';
+
+        const app = initializeApp(config.firebase);
+        const db = getFirestore(app);
+
+        document.getElementById('btn-migrar').onclick = async () => {
+            const btn = document.getElementById('btn-migrar');
+            const statusDiv = document.getElementById('status');
+            const statusText = document.getElementById('status-text');
+
+            btn.disabled = true;
+            btn.innerText = "Procesando...";
+            statusDiv.classList.remove('hidden');
+            statusText.innerText = "⏳ Leyendo datos de Claudia...";
+
+            try {
+                // 1. Leer Claudia
+                const sourceRef = doc(db, "_internal_temp", "claudia-2026");
+                const snap = await getDoc(sourceRef);
+
+                if (!snap.exists()) {
+                    throw new Error("No se encontró el evento 'claudia-2026' en _internal_temp");
+                }
+
+                const data = snap.data();
+                statusText.innerText = "✅ Datos leídos. Creando 'demo'...";
+
+                // 2. Crear Demo
+                const destRef = doc(db, "_internal_temp", "demo");
+                await setDoc(destRef, data);
+                statusText.innerText = "✅ 'demo' creado. Borrando 'claudia-2026'...";
+
+                // 3. Borrar Claudia
+                await deleteDoc(sourceRef);
+
+                statusText.innerHTML = "<span class='text-emerald-400 font-bold'>✨ ¡ÉXITO!</span><br>El evento ha sido renombrado. Ya puedes cerrar esta pestaña.";
+                btn.innerText = "COMPLETADO";
+                btn.classList.replace('bg-emerald-600', 'bg-slate-700');
+
+            } catch (error) {
+                console.error(error);
+                statusText.innerHTML = "<span class='text-red-400 font-bold'>❌ ERROR:</span><br>" + error.message;
+                btn.disabled = false;
+                btn.innerText = "REINTENTAR";
+            }
+        };
+    </script>
+</body>
+
+</html>

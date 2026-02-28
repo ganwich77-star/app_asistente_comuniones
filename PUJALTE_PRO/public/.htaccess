@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# 1. No redirigir archivos o carpetas que existen físicamente
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. Ignorar rutas con extensión (assets que faltan) para evitar error de MIME
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule \.(js|css|webp|png|jpg|jpeg|gif|svg|mp3|mp4|json|ico)$ - [R=404,L]
+
+# 3. REDIRECCIÓN MAESTRA: Captura TODO (incluso /index.html) y lo manda al root
+# Esto permite que /comuniones2026/adriana-2026/index.html funcione
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ index.html [L,QSA]
+</IfModule>
+
+Options -Indexes

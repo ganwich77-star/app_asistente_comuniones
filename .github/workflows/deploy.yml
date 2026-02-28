@@ -1,0 +1,33 @@
+name: Deploy to Hostinger via FTP
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cada vez que subas cambios a la rama principal
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploying
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /public_html/apps/  # Directorio destino en Hostinger
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/01_HISTORIAL_Y_BACKUPS/**
+          **/*.zip
+          README.md
+          package-lock.json
+          package.json
+          vite.config.js
+          .gitignore

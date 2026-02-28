@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Acceso Fotógrafo - Basecode</title>
+    <link rel="icon" type="image/png" href="./assets/logo basecode.png">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&family=Material+Icons+Outlined&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D4AF37", // Gold
+                        "background-dark": "#0A0A0B",
+                        "card-dark": "#161618",
+                    },
+                    fontFamily: {
+                        display: ["'Playfair Display'", "serif"],
+                        sans: ["'Inter'", "sans-serif"],
+                        manrope: ["'Manrope'", "sans-serif"],
+                        mono: ["'Space Mono'", "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .floating-label-group input:placeholder-shown~label {
+            transform: translateY(1.4rem) scale(1);
+            color: #9ca3af;
+        }
+
+        .floating-label-group input:focus~label,
+        .floating-label-group input:not(:placeholder-shown)~label {
+            transform: translateY(0.4rem) scale(0.8);
+            color: #D4AF37;
+        }
+
+        .input-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .input-box:focus-within {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.05);
+        }
+
+        #legal-modal {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Custom scrollbar */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Visible Scrollbar for events container */
+        .scrollbar-visible::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-visible::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .scrollbar-visible::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+        }
+
+        .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.6);
+        }
+    </style>
+    <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill.js">
+    <link rel="modulepreload" crossorigin href="./assets/config.js">
+    <script type="module" crossorigin src="./js/fotografo_premium.js"></script>
+    <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
+    <link rel="modulepreload" crossorigin href="./js/config.js">
+</head>
+
+<body class="bg-background-dark text-gray-100 font-sans min-h-screen pb-32">
+
+    <!-- MODAL LEGAL -->
+    <div id="legal-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-6">
+        <div class="bg-card-dark border border-primary/20 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div class="text-center">
+                <img src="./assets/logo basecode.png" class="h-20 mx-auto mb-6" alt="Basecode">
+                <h2 class="font-display text-2xl font-semibold text-primary mb-2">Acuerdo de Colaboración</h2>
+                <p class="text-xs text-gray-400">Campaña Comuniones</p>
+            </div>
+
+            <div
+                class="max-h-60 overflow-y-auto pr-2 space-y-4 text-[10px] text-gray-400 leading-relaxed border-y border-white/5 py-4 scrollbar-hide text-left">
+                <p><strong>1. Finalización del Servicio:</strong> El servicio técnico concluirá el 1 de julio de 2026.
+                    En dicha fecha, se ejecutará un borrado automático de todas las bases de datos. Es responsabilidad
+                    del Fotógrafo exportar sus leads antes de esta fecha.</p>
+                <p><strong>2. Propiedad de los Datos:</strong> Los leads captados mediante la sección "Regalo" son
+                    propiedad exclusiva del Fotógrafo. Basecode no utilizará ni cederá estos datos.</p>
+                <p><strong>3. Responsabilidad:</strong> El Fotógrafo es el Responsable del Tratamiento de los datos de
+                    sus clientes. Garantiza contar con el consentimiento necesario para el uso de esta plataforma.</p>
+            </div>
+
+            <!-- CHECKBOX LEGAL -->
+            <div class="flex flex-col items-center gap-3 px-2">
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <div class="relative flex items-center mt-0.5">
+                        <input type="checkbox" id="legal-checkbox-main"
+                            class="peer appearance-none w-5 h-5 border-2 border-primary/30 rounded-md checked:bg-primary checked:border-primary transition-all">
+                        <svg class="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <span
+                        class="text-[10px] uppercase font-bold text-gray-400 leading-tight text-center group-hover:text-primary transition-colors">
+                        Acepto la <a href="#" onclick="window.showPrivacyPolicyModal(); event.preventDefault();"
+                            class="text-primary underline">Privacidad</a> y los <a href="#"
+                            onclick="window.showTermsModal(); event.preventDefault();"
+                            class="text-primary underline">Términos de Uso</a> para entrar.
+                    </span>
+                </label>
+            </div>
+
+            <button id="accept-legal" disabled
+                class="w-full bg-primary text-black font-black py-4 rounded-2xl opacity-50 cursor-not-allowed hover:brightness-110 transition-all active:scale-95 shadow-xl shadow-primary/20 uppercase tracking-widest text-xs">
+                ENTRAR AL PANEL PROFESIONAL
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE LOGIN (ACCESO FOTÓGRAFO) -->
+    <div id="login-modal"
+        class="fixed inset-0 z-[110] hidden flex-col items-center justify-center bg-black/95 backdrop-blur-2xl p-6">
+        <div class="max-w-sm w-full text-center space-y-12">
+            <!-- Icono Cámara -->
+            <div class="flex justify-center">
+                <div
+                    class="w-24 h-24 rounded-full border border-primary/20 flex items-center justify-center bg-primary/5 shadow-[0_0_50px_rgba(212,175,55,0.1)]">
+                    <span class="material-icons-outlined text-4xl text-primary">photo_camera</span>
+                </div>
+            </div>
+
+            <!-- Títulos -->
+            <div class="space-y-2">
+                <h2 class="text-primary font-display text-4xl tracking-[0.2em] leading-tight">ACCESO</h2>
+                <h2 class="text-primary font-display text-4xl tracking-[0.2em] leading-tight">FOTÓGRAFO</h2>
+                <div class="w-16 h-px bg-primary/30 mx-auto mt-6"></div>
+            </div>
+
+            <!-- Formulario Login -->
+            <div id="login-form-container" class="space-y-10 pt-8 text-left">
+                <!-- Campo Usuario (Opcional según flujo, pero el usuario lo mencionó) -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-primary/60 font-bold ml-1">USUARIO / NOMBRE
+                        COMERCIAL</label>
+                    <input type="text" id="login-user" placeholder="Nombre de tu estudio"
+                        class="w-full bg-transparent border-0 border-b border-primary/30 focus:border-primary focus:ring-0 text-gray-100 placeholder:text-gray-700 py-3 transition-colors">
+                </div>
+
+                <!-- Campo Password (DNI) -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-primary/60 font-bold ml-1">DNI /
+                        IDENTIFICACIÓN</label>
+                    <div class="relative">
+                        <input type="password" id="login-pass" placeholder="Contraseña"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,8)"
+                            class="w-full bg-transparent border-0 border-b border-primary/30 focus:border-primary focus:ring-0 text-white placeholder:text-gray-700 py-3 pr-10 transition-colors">
+                        <button type="button"
+                            onclick="const p=document.getElementById('login-pass'); const i=this.querySelector('span'); if(p.type==='password'){p.type='text';i.innerText='visibility_off';}else{p.type='password';i.innerText='visibility';}"
+                            class="absolute right-2 bottom-3 text-primary/50 hover:text-primary transition-colors focus:outline-none">
+                            <span class="material-icons-outlined text-lg">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btn-login-submit"
+                    class="w-full bg-primary text-black font-black py-5 rounded-full shadow-[0_10px_30px_rgba(212,175,55,0.2)] hover:shadow-[0_15px_40px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-sm mt-4">
+                    ENTRAR
+                </button>
+
+                <p class="text-primary/40 text-[10px] tracking-wider text-center leading-relaxed px-4">
+                    RECIBIRÁS UNA NOTIFICACIÓN POR EMAIL CUANDO TENGAS TUS EVENTOS PREPARADOS.
+                </p>
+            </div>
+
+            <!-- Footer Logo (Estilo Captura) -->
+            <div class="pt-12 space-y-4">
+                <img src="./assets/logo basecode.png" alt="Logo" class="h-12 mx-auto opacity-30 grayscale invert">
+                <div class="space-y-2">
+                    <p class="text-[8px] uppercase tracking-[0.6em] text-gray-500 font-bold">POWERED BY</p>
+                    <p class="text-primary font-black tracking-[0.3em] text-xs uppercase">Basecode</p>
+                </div>
+                <p class="text-[7px] uppercase tracking-[0.1em] text-gray-700 pt-6">© 2026 VISUAL EXCELLENCE</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL (OCULTO HASTA LOGIN) -->
+    <div id="main-content-wrapper" class="hidden opacity-0 transition-opacity duration-700 font-manrope">
+        <header
+            class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md border-b border-primary/10 px-6 py-4 flex flex-col gap-4 shadow-xl">
+            <div class="flex justify-between items-center w-full">
+                <!-- Título y logo -->
+                <div class="flex items-center gap-4">
+                    <div id="smart-logo-container" class="hidden h-24 w-auto">
+                        <img id="photographer-logo" src=""
+                            class="h-full object-contain filter drop-shadow-[0_0_2px_rgba(255,255,255,0.2)]"
+                            alt="Logo Estudio">
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <h1 id="text-logo" class="font-display text-4xl text-primary tracking-wide leading-none">Mis
+                            Eventos</h1>
+                        <p id="photographer-lema" class="text-xs text-primary/70 italic tracking-widest mt-1 hidden">
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button id="btn-toggle-search" title="Buscar Eventos"
+                        class="w-11 h-11 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                        <span class="material-icons-outlined text-xl">search</span>
+                    </button>
+                    <!-- El botón tune de ordenar se ha eliminado según tu petición para evitar confusiones -->
+                </div>
+            </div>
+            <!-- Búsqueda Animada -->
+            <div id="search-container" class="hidden w-full transition-all">
+                <div class="relative">
+                    <input type="text" id="event-search-input" placeholder="Buscar por niño/a, fecha o ubicación..."
+                        class="w-full bg-card-dark border border-primary/20 text-white text-xs px-4 py-3 rounded-2xl outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-gray-600">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 pb-20 w-full mx-auto max-w-[1400px] flex flex-col lg:flex-row gap-8">
+            <!-- COLUMNA PRINCIPAL -->
+            <div class="flex-1 space-y-8 min-w-0">
+                <!-- FILA WA + DESCARGAS -->
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <!-- ZONA WA (TRES MENSAJES) -->
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- MENSAJE 1: FORMULARIO INICIAL -->
+                        <div
+                            class="bg-card-dark border border-sky-600/30 rounded-3xl p-5 relative overflow-hidden shadow-lg shadow-sky-600/5 flex flex-col">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-600"></div>
+
+                            <div
+                                class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 mb-3">
+                                <h2
+                                    class="text-sky-500 text-[10px] uppercase font-black tracking-widest flex items-center gap-1 leading-tight">
+                                    <span class="material-icons-outlined text-sm">waving_hand</span>
+                                    Mensaje Formulario
+                                </h2>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="window.saveCustomWAPanelForm()"
+                                        class="bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-colors shadow-lg active:scale-95 shrink-0">
+                                        Guardar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <textarea id="custom-wa-msg-panel-form"
+                                class="w-full bg-[#1A2235] border border-gray-700 focus:border-sky-500 rounded-xl p-3 text-xs text-gray-300 outline-none transition-colors min-h-[160px] resize-y mb-2 font-manrope shadow-inner placeholder:text-gray-600 flex-1"
+                                placeholder="Escribe tu mensaje para el formulario..."></textarea>
+
+                            <p class="text-[8px] text-gray-500 leading-tight">
+                                <span class="bg-gray-800 px-1 py-0.5 rounded text-gray-300 font-mono">{{URL}}</span>
+                                enlace único.
+                            </p>
+                        </div>
+
+                        <!-- MENSAJE 2: ENTREGA APP (TRADICIONAL) -->
+                        <div
+                            class="bg-card-dark border border-[#25D366]/30 rounded-3xl p-5 relative overflow-hidden shadow-lg shadow-[#25D366]/5 flex flex-col">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#25D366]"></div>
+
+                            <div
+                                class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 mb-3">
+                                <h2
+                                    class="text-[#25D366] text-[10px] uppercase font-black tracking-widest flex items-center gap-1 leading-tight">
+                                    <span class="material-icons-outlined text-sm">smartphone</span>
+                                    Mensaje Entrega App
+                                </h2>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="window.saveCustomWAPanel()"
+                                        class="bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-[10px] px-3 py-1.5 rounded-lg transition-colors shadow-lg active:scale-95 shrink-0">
+                                        Guardar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <textarea id="custom-wa-msg-panel"
+                                class="w-full bg-[#1A2235] border border-gray-700 focus:border-[#25D366] rounded-xl p-3 text-xs text-gray-300 outline-none transition-colors min-h-[160px] resize-y mb-2 font-manrope shadow-inner placeholder:text-gray-600 flex-1"
+                                placeholder="Escribe tu mensaje para el regalo..."></textarea>
+
+                            <p class="text-[8px] text-gray-500 leading-tight">
+                                <span class="bg-gray-800 px-1 py-0.5 rounded text-gray-300 font-mono">{{NOMBRE}}</span>
+                                niño/a y
+                                <span class="bg-gray-800 px-1 py-0.5 rounded text-gray-300 font-mono">{{URL}}</span>
+                                App.
+                            </p>
+                        </div>
+
+                        <!-- MENSAJE 3: RECORDATORIO / PERSONALIZADO -->
+                        <div
+                            class="bg-card-dark border border-amber-500/30 rounded-3xl p-5 relative overflow-hidden shadow-lg shadow-amber-500/5 flex flex-col">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div>
+
+                            <div
+                                class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 mb-3">
+                                <h2
+                                    class="text-amber-500 text-[10px] uppercase font-black tracking-widest flex items-center gap-1 leading-tight">
+                                    <span class="material-icons-outlined text-sm">assignment</span>
+                                    Datos Evento
+                                </h2>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="window.saveCustomWAPanelExtra()"
+                                        class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-colors shadow-lg active:scale-95 shrink-0">
+                                        Guardar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <textarea id="custom-wa-msg-panel-extra"
+                                class="w-full bg-[#1A2235] border border-gray-700 focus:border-amber-500 rounded-xl p-3 text-xs text-gray-300 outline-none transition-colors min-h-[160px] resize-y mb-2 font-manrope shadow-inner placeholder:text-gray-600 flex-1"
+                                placeholder="Escribe el mensaje para pedir datos del evento..."></textarea>
+
+                            <p class="text-[8px] text-gray-500 leading-tight">
+                                Mensaje para solicitar detalles del evento al cliente.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <!-- ACCIONES RÁPIDAS (2X2 GRID) -->
+                    <div class="w-full lg:w-80 shrink-0 grid grid-cols-2 grid-rows-2 gap-3 self-stretch">
+                        <!-- Descargar Excel -->
+                        <button id="btn-download-excel"
+                            class="relative bg-primary text-black font-black p-4 rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all hover:brightness-110">
+                            <span id="badge-excel"
+                                class="absolute top-2 right-2 bg-black text-primary text-[8px] font-black px-1.5 py-0.5 rounded-full">...</span>
+                            <span class="material-icons-outlined text-xl">table_chart</span>
+                            <span id="txt-download-excel"
+                                class="uppercase tracking-widest text-[8px] text-center font-bold">Eventos</span>
+                        </button>
+
+                        <!-- Descargar Leads -->
+                        <button id="btn-download-leads"
+                            class="relative bg-[#1A2721] border border-[#25D366] text-[#25D366] font-black p-4 rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all hover:bg-[#25D366] hover:text-black group">
+                            <span id="badge-leads"
+                                class="absolute top-2 right-2 bg-[#25D366] text-black group-hover:bg-black group-hover:text-[#25D366] text-[8px] font-black px-1.5 py-0.5 rounded-full transition-colors">...</span>
+                            <span class="material-icons-outlined text-xl">group_add</span>
+                            <span id="txt-download-leads"
+                                class="uppercase tracking-widest text-[8px] text-center font-bold">Leads</span>
+                        </button>
+
+                        <!-- Compartir Formulario -->
+                        <button onclick="window.openShareFormModal()"
+                            class="bg-sky-600 text-white font-black p-4 rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all hover:bg-sky-500">
+                            <span class="material-icons-outlined text-xl">share</span>
+                            <span class="uppercase tracking-widest text-[8px] text-center font-bold">Compartir</span>
+                        </button>
+
+                        <!-- Configurar Descuento -->
+                        <button onclick="window.openDiscountModal()"
+                            class="bg-amber-600 text-white font-black p-4 rounded-2xl shadow-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all hover:bg-amber-500">
+                            <span class="material-icons-outlined text-xl">loyalty</span>
+                            <span class="uppercase tracking-widest text-[8px] text-center font-bold">Descuento</span>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- CABECERA EVENTOS -->
+                <div class="flex flex-wrap gap-4 justify-between items-center px-2 mb-6">
+                    <span id="events-count-str"
+                        class="text-xs font-bold text-gray-500 uppercase tracking-widest">Colecciones
+                        disponibles</span>
+
+                    <div class="flex items-center gap-4">
+                        <select id="sort-selector"
+                            class="bg-transparent border-none text-[9px] font-bold text-primary uppercase tracking-[0.2em] outline-none cursor-pointer focus:ring-0">
+                            <option value="recent">Más Recientes</option>
+                            <option value="oldest">Más Antiguos</option>
+                            <option value="name_asc">Nombre (A-Z)</option>
+                        </select>
+
+                        <div class="flex items-center gap-2 bg-primary/10 rounded-lg p-1">
+                            <button id="view-grid"
+                                class="w-8 h-8 rounded-md bg-primary text-black flex items-center justify-center transition-all">
+                                <span class="material-icons-outlined text-sm">grid_view</span>
+                            </button>
+                            <button id="view-list"
+                                class="w-8 h-8 rounded-md text-primary hover:bg-primary/20 flex items-center justify-center transition-all">
+                                <span class="material-icons-outlined text-sm">view_list</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR VISIBLE CON SCROLL PARA LA LISTA/GRID -->
+                <div class="bg-card-dark/80 border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
+                    <div class="max-h-[65vh] overflow-y-auto scrollbar-visible pr-3 pb-8">
+                        <div id="events-grid"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <!-- Event Card 1: NEW -->
+                            <div class="relative group">
+                                <div
+                                    class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card-dark border border-primary/20 shadow-2xl">
+                                    <img class="w-full h-full object-cover opacity-80"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwM4qny5XTEIeU1lzitUJtGGEvcXyJXHnfWOsn71N-tj2gytBv1hiEWs-lKlFlTprBp3lqWFz0sY-HHTKj6_sqMJjxHdnuvBLjrGpFwkfZujdgiAi7q6VTSCradteYksCMyFPvYdLcWGp4HEAdOAFj91fQ6YRcsEU2e8YtgVUNNupxheK3XOAFUdT6s6ElM542pMYOdDMnnH3Vh6YzGkxtNOsNLPTZn7SfEK1Yp7AhmAJSxkaBS2Y7bpr_sLVlRxTMD-bgOMN9pss">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                    </div>
+                                    <div class="absolute top-4 left-4">
+                                        <span
+                                            class="bg-primary text-black text-[9px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-tighter">NUEVO</span>
+                                    </div>
+                                    <div class="absolute top-4 right-4">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                                            <div class="w-2.5 h-2.5 rounded-full border-2 border-primary"></div>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-sm font-bold leading-tight mb-1 text-white">Boda Elena & Marcos
+                                        </h3>
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-widest">12 Mayo, 2024</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="absolute -bottom-2 -right-2 w-11 h-11 bg-primary text-black rounded-full shadow-2xl flex items-center justify-center transform active:scale-90 transition-all hover:scale-110">
+                                    <span class="material-icons-outlined text-xl">file_download</span>
+                                </button>
+                            </div>
+
+                            <!-- Event Card 2 -->
+                            <div class="relative group">
+                                <div
+                                    class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card-dark border border-white/5 shadow-2xl">
+                                    <img class="w-full h-full object-cover opacity-60"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1iXg8dqqj7aQG_9bErOh26f6fnbseUIoBxVOTtO2Jvj_VT-obp6-MQPJRqVhO1IadSk_WcZQkRVCUYNrbLZQJC2aONyjsixNFY7ZIzWKcwff3poZH9TSiCT2GwempGqQqesMy5A8WqTh-T8DSm5cPTQrNUSjMjVHwrrs3qkR61KGPXQ1i18OuHIuk9hzkVrZ_7U87igA0NHtNFIVIoDAqgtouPS-QHazfECyA4aooCANS9TcJEk_7YHtKIYULZexRUBNq4W8rJ3o">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                    </div>
+                                    <div class="absolute top-4 right-4">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                                            <span
+                                                class="material-icons-outlined text-black text-xs font-black">check</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-sm font-bold leading-tight mb-1 text-white">Sesión Primavera
+                                        </h3>
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-widest">28 Abril, 2024</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="absolute -bottom-2 -right-2 w-11 h-11 bg-primary/10 backdrop-blur-md text-primary rounded-full border border-primary/30 flex items-center justify-center transform active:scale-90 transition-all hover:scale-110">
+                                    <span class="material-icons-outlined text-xl">file_download</span>
+                                </button>
+                            </div>
+
+                            <!-- Event Card 3 -->
+                            <div class="relative group">
+                                <div
+                                    class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card-dark border border-primary/20 shadow-2xl">
+                                    <img class="w-full h-full object-cover opacity-80"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBX3VVdk6Sxx0sGeClLYMb98SwwsDUQHvJoS4OK6t38Mp7nWSGXuW8a8URpG3-gHOhgi3ZwuCepSMa9FW3r9gQrWv9pr79AxMxrbwANYlfTENUuhJWSCvaeIn3up_eBm8WM6RCdn8lXWZV3KRWC6dAvcegWMdE00M_JPdUJDnQRLeHYAMhJFcjwvwELNF_Y9i49il_UVelyxevzypep-BT-EM1vcvQAmqaxpJfRkPs6A8kU8XrM7LZ4PJnBoMH5O9kIsfY_TJFGqM">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                    </div>
+                                    <div class="absolute top-4 left-4">
+                                        <div
+                                            class="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full border border-primary/30">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                                            <span
+                                                class="text-primary text-[8px] font-black tracking-widest uppercase">NUEVO</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-sm font-bold leading-tight mb-1 text-white">Gala Benéfica '24
+                                        </h3>
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-widest">15 Abril, 2024</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="absolute -bottom-2 -right-2 w-11 h-11 bg-primary text-black rounded-full shadow-2xl flex items-center justify-center transform active:scale-90 transition-all hover:scale-110">
+                                    <span class="material-icons-outlined text-xl">file_download</span>
+                                </button>
+                            </div>
+
+                            <!-- Event Card 4 -->
+                            <div class="relative group">
+                                <div
+                                    class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card-dark border border-white/5 shadow-2xl">
+                                    <img class="w-full h-full object-cover opacity-60"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TuQzYXpsT7C2lzFG7gdte2HP4oQtZqnOFWo2Yx6jO_V-7GfrOd2QxHmThrx17WAMaY_mVNaWVkMk3BDjyWsbyMSYewpHHlKChVBEsltj9RcQ7VerSFWvGoU0Wz0rs2id6RXms-j1hFStmmkKmCTqhjIt2qASnXEJdGS168DfZQl4_CATt4BsZ8XlIgHi19iOlHNWiLwlgMVz9OlyldHS0ZayistsS_JYfIJTvt81nRRIMvzouMJ8ZSBUgy5rmlDRrNbzREpiLA">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                    </div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <h3 class="text-sm font-bold leading-tight mb-1 text-white">Interiorismo Arq.
+                                        </h3>
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-widest">02 Abril, 2024</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="absolute -bottom-2 -right-2 w-11 h-11 bg-primary/10 backdrop-blur-md text-primary rounded-full border border-primary/30 flex items-center justify-center transform active:scale-90 transition-all hover:scale-110">
+                                    <span class="material-icons-outlined text-xl">file_download</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div> <!-- Fin contenedor card visible con scroll -->
+
+            </div> <!-- FIN COLUMNA PRINCIPAL -->
+
+        </main>
+
+        <!-- FOOTER CENTRADO -->
+        <footer class="pb-8 w-full flex flex-col items-center justify-center opacity-40">
+            <p class="text-[8px] uppercase tracking-[0.5em] mb-2 text-center text-gray-400">Powered by</p>
+            <p class="text-primary font-bold tracking-[0.1em] text-[10px] uppercase text-center leading-relaxed">
+                Basecode</p>
+        </footer>
+
+    </div> <!-- Cierre main-content-wrapper -->
+
+    <!-- MODALES LEGALES AUXILIARES -->
+    <div id="privacy-policy-modal"
+        class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div
+            class="bg-card-dark border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="window.closePrivacyPolicyModal()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors">
+                <span class="material-icons-outlined">close</span>
+            </button>
+            <div class="prose prose-invert prose-xs">
+                <h2 class="font-display text-2xl text-primary mb-6">Política de Privacidad</h2>
+                <p><strong>Fecha de última actualización:</strong> 26 de enero de 2026</p>
+                <p>En Basecode, nos tomamos muy en serio la privacidad y la protección de los datos
+                    de
+                    nuestros
+                    colaboradores profesionales.</p>
+                <h3>1. Responsable del Tratamiento</h3>
+                <p>Los datos técnicos de la plataforma y los facilitados en este formulario de configuración son
+                    gestionados por Basecode (José Pujalte Molina).</p>
+                <h3>2. Datos que Recogemos</h3>
+                <ul>
+                    <li><strong>Datos de Identidad:</strong> Nombre comercial, logotipos y colores de marca.</li>
+                    <li><strong>Datos de Contacto:</strong> WhatsApp, Email, Instagram y Web.</li>
+                    <li><strong>Datos Fiscales:</strong> Razón social, NIF, dirección y teléfono para facturación.
+                    </li>
+                </ul>
+                <h3>3. Finalidad del Tratamiento</h3>
+                <p>La recogida de estos datos tiene como única finalidad la configuración personalizada de tu
+                    ecosistema
+                    digital de eventos y la gestión administrativa de la colaboración profesional.</p>
+                <h3>4. Conservación de los Datos</h3>
+                <p>Toda la información personal se conservará mientras dure la relación de colaboración o hasta el
+                    <strong>1 de julio de 2026</strong>, fecha en la que se procederá al borrado automático de las
+                    bases
+                    de datos de la campaña.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="terms-modal"
+        class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div
+            class="bg-card-dark border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="window.closeTermsModal()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors">
+                <span class="material-icons-outlined">close</span>
+            </button>
+            <div class="prose prose-invert prose-xs">
+                <h2 class="font-display text-2xl text-primary mb-6">Términos y Condiciones</h2>
+                <div class="space-y-6">
+                    <p><strong>1. PROPIEDAD INTELECTUAL</strong><br>
+                        Todo el contenido de la plataforma, incluyendo el código fuente, arquitectura de software y
+                        diseños de interfaz, es propiedad exclusiva de JOSÉ BASECODE MOLINA.</p>
+                    <p><strong>2. LICENCIA DE USO</strong><br>
+                        Se otorga al Fotógrafo una licencia de uso limitada para la gestión de sus eventos durante
+                        la
+                        Campaña 2026. Esta licencia no implica cesión de derechos sobre el software.</p>
+                    <p><strong>3. RESTRICCIONES</strong><br>
+                        Queda estrictamente prohibida la ingeniería inversa, la copia del diseño de interfaz para
+                        aplicaciones derivadas o la redistribución del acceso a terceros sin consentimiento expreso.
+                    </p>
+                    <p><strong>4. LIMITACIÓN DE RESPONSABILIDAD</strong><br>
+                        La aplicación se entrega "tal cual". Basecode no se hace responsable de daños
+                        derivados
+                        del uso o la imposibilidad de uso de la herramienta.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURAR DESCUENTO -->
+    <div id="discount-modal"
+        class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div class="bg-card-dark border border-primary/20 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-icons-outlined text-3xl text-amber-500">loyalty</span>
+                </div>
+                <h2 class="font-display text-2xl font-semibold text-primary">Descuento de Regalo</h2>
+                <p class="text-xs text-gray-400 mt-2">Configura el porcentaje que verán tus clientes al pulsar "Me
+                    Encanta"</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-bold text-gray-500 ml-1">Porcentaje de Descuento
+                        (%)</label>
+                    <div class="relative">
+                        <input type="number" id="discount-percentage-input" placeholder="Ej: 10"
+                            class="w-full bg-black/40 border border-white/10 text-white p-4 rounded-2xl focus:border-amber-500 focus:ring-0 transition-all text-xl font-bold text-center">
+                        <span
+                            class="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-amber-500">%</span>
+                    </div>
+                </div>
+
+                <p
+                    class="text-[10px] text-gray-500 bg-amber-500/5 p-4 rounded-xl border border-amber-500/10 italic leading-relaxed">
+                    Este valor actualizará automáticamente la sección de regalo en todas tus colecciones activas.
+                </p>
+            </div>
+
+            <div class="flex gap-4 pt-2">
+                <button onclick="window.closeDiscountModal()"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-white/5 text-gray-400 font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
+                    Cancelar
+                </button>
+                <button onclick="window.saveDiscountPercentage()"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-amber-600 text-white font-black text-xs uppercase tracking-widest hover:bg-amber-500 shadow-lg shadow-amber-600/20 active:scale-95 transition-all">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COMPARTIR FORMULARIO (ELECCIÓN DE MENSAJE) -->
+    <div id="share-form-modal"
+        class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div class="bg-card-dark border border-primary/20 rounded-3xl p-8 max-w-lg w-full shadow-2xl space-y-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-sky-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-icons-outlined text-3xl text-sky-500">share</span>
+                </div>
+                <h2 class="font-display text-2xl font-semibold text-primary">Compartir Formulario</h2>
+                <p class="text-xs text-gray-400 mt-2">Envía tu enlace de captura de datos por WhatsApp</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Selector de Mensaje -->
+                <div class="space-y-3">
+                    <label class="text-[10px] uppercase font-bold text-gray-500 ml-1">Selecciona el mensaje a
+                        enviar:</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="window.selectWAMessage('form')" id="wa-btn-select-form"
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-sky-600/10 border border-sky-600/30 text-left hover:bg-sky-600/20 transition-all group border-2 ring-2 ring-sky-500/50">
+                            <span
+                                class="material-icons-outlined text-sky-500 group-hover:scale-110 transition-transform">waving_hand</span>
+                            <div>
+                                <p class="text-xs font-bold text-sky-500 uppercase tracking-widest">Opción 1: Formulario
+                                </p>
+                                <p class="text-[10px] text-gray-400 line-clamp-1">Mensaje de bienvenida y toma de datos.
+                                </p>
+                            </div>
+                        </button>
+                        <button onclick="window.selectWAMessage('app')" id="wa-btn-select-app"
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 text-left hover:bg-white/10 transition-all group">
+                            <span
+                                class="material-icons-outlined text-[#25D366] group-hover:scale-110 transition-transform">smartphone</span>
+                            <div>
+                                <p class="text-xs font-bold text-[#25D366] uppercase tracking-widest">Opción 2: Entrega
+                                    App</p>
+                                <p class="text-[10px] text-gray-400 line-clamp-1">Mensaje para enviar la App final.</p>
+                            </div>
+                        </button>
+                        <button onclick="window.selectWAMessage('extra')" id="wa-btn-select-extra"
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 text-left hover:bg-white/10 transition-all group">
+                            <span
+                                class="material-icons-outlined text-amber-500 group-hover:scale-110 transition-transform">notifications_active</span>
+                            <div>
+                                <p class="text-xs font-bold text-amber-500 uppercase tracking-widest">Opción 3:
+                                    Recordatorio</p>
+                                <p class="text-[10px] text-gray-400 line-clamp-1">Mensaje extra personalizado.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Teléfono -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-bold text-gray-500 ml-1">Teléfono del Cliente
+                        (Opcional)</label>
+                    <input type="tel" id="wa-target-phone" placeholder="Ej: 600000000"
+                        class="w-full bg-black/40 border border-white/10 text-white p-4 rounded-2xl focus:border-sky-500 focus:ring-0 transition-all font-mono">
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-2">
+                <button onclick="window.closeShareFormModal()"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-white/5 text-gray-400 font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
+                    Cerrar
+                </button>
+                <button onclick="window.sendWAMessageSelected()"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-[#25D366] text-white font-black text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-[#25D366]/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <img src="./assets/whatsapp_logo.png" class="w-4 h-4 brightness-0 invert" alt="WA">
+                    ENVIAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motor Premium Master -->
+    <script>
+        // Feedback visual del color de marca en tiempo real
+        const colorPicker = document.getElementById('brand_color');
+        if (colorPicker) {
+            colorPicker.addEventListener('input', (e) => {
+                document.documentElement.style.setProperty('--color-primary', e.target.value);
+                // Tailwind usa clases fijas, pero podemos inyectar un estilo que sobreescriba .text-primary y .bg-primary si quisiéramos
+                // Para este formulario usaremos una estrategia simple de inyección de estilo
+                let styleTag = document.getElementById('dynamic-brand-color');
+                if (!styleTag) {
+                    styleTag = document.createElement('style');
+                    styleTag.id = 'dynamic-brand-color';
+                    document.head.appendChild(styleTag);
+                }
+                styleTag.innerHTML = `
+                    .text-primary { color: ${e.target.value} !important; }
+                    .bg-primary { background-color: ${e.target.value} !important; }
+                    .border-primary { border-color: ${e.target.value} !important; }
+                    .shadow-primary\\/20 { --tw-shadow-color: ${e.target.value}33 !important; }
+                `;
+            });
+        }
+    </script>
+
+</body>
+
+</html>

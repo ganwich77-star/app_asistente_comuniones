@@ -1,0 +1,44 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# 1. EXCEPCIONES: No redirigir si el archivo/carpeta EXISTE físicamente
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. PASS-THROUGH: Archivos estáticos (JS, CSS, imágenes, audio...)
+# Si la URL termina en extensión estática, pasar sin redirigir aunque no exista físicamente
+RewriteRule \.(js|css|png|jpg|jpeg|webp|gif|ico|svg|mp3|mp4|woff|woff2|ttf|json|zip|pdf|txt)$ - [L]
+
+# 3. CASO ESPECIAL: /comuniones2026/index.html?id=SLUG
+# Si la URL ya viene con ?id=, NO sobreescribir el id con "comuniones2026"
+RewriteCond %{QUERY_STRING} (^|&)id=.+
+RewriteRule ^comuniones2026/index\.html$ /index.html [L,QSA]
+
+# 4. SOPORTE URL AMIGABLE: /comuniones2026/leyreyidaira/ (sin ?id=)
+# Extrae el slug de la URL y lo pasa como ?id=
+RewriteRule ^comuniones2026/([^/]+)/?$ /index.html?id=$1 [L,QSA]
+
+# 5. MOTOR MAESTRO: URLs raíz amigables (slug directo en dominio)
+# Ejemplos: /adriana-2026 -> index.html?id=adriana-2026
+RewriteRule ^([^/]+)/?$ /index.html?id=$1 [L,QSA]
+RewriteRule ^([^/]+)/index\.html$ /index.html?id=$1 [L,QSA]
+
+# 6. Fallback general
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+</IfModule>
+
+# Sin caché para JS/CSS/HTML (fuerza actualización inmediata)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|html)$">
+        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+    </FilesMatch>
+</IfModule>
+
+# Seguridad: deshabilitar listado de directorios
+Options -Indexes

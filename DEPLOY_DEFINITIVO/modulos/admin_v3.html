@@ -1,0 +1,208 @@
+<section id="admin-panel"
+    class="p-6 max-w-md mx-auto mt-20 mb-32 bg-[#1A2E23] text-[#F0FFF4] rounded-[40px] hidden text-center">
+
+    <style>
+        #admin-panel .toggle-switch {
+            width: 50px !important;
+            height: 26px !important;
+            background-color: #374151 !important;
+            border-radius: 13px !important;
+            position: relative !important;
+            cursor: pointer !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        #admin-panel .toggle-switch.active {
+            background-color: #10b981 !important;
+        }
+
+        #admin-panel .toggle-dot {
+            width: 20px !important;
+            height: 20px !important;
+            background-color: white !important;
+            border-radius: 50% !important;
+            position: absolute !important;
+            top: 3px !important;
+            left: 3px !important;
+            transition: transform 0.3s ease !important;
+        }
+
+        #admin-panel .toggle-switch.active .toggle-dot {
+            transform: translateX(24px) !important;
+        }
+    </style>
+
+    <h2 class="font-cursive text-4xl mb-10 text-[#F0FFF4] text-center">Gestión</h2>
+
+    <!-- 1. INVITADOS (ACORDEÓN) -->
+    <div class="bg-white/5 p-5 rounded-[15px] mb-8 border border-white/10 text-center">
+        <button onclick="window.toggleAccordion('acc-asistencia')"
+            class="w-full flex justify-between items-center text-lg font-bold uppercase text-[#F0FFF4] outline-none">
+            <div class="flex items-center gap-2">
+                <span>👥 Invitados</span>
+                <span id="new-guests-badge"
+                    style="display:none; background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span>
+            </div>
+            <span id="icon-acc-asistencia">▼</span>
+        </button>
+        <div id="acc-asistencia" class="hidden mt-6 space-y-6">
+            <div id="admin-summary" class="flex justify-around bg-white/5 p-4 rounded-2xl"></div>
+            <div id="meal-summary" class="grid grid-cols-2 gap-3"></div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="window.showAdminReport()"
+                    class="bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">📊 Informe</button>
+                <button onclick="window.downloadGuestsCSV()"
+                    class="bg-green-600 text-white py-3 rounded-xl font-bold uppercase text-xs">📥 Excel</button>
+            </div>
+            <div id="admin-list" class="space-y-3 text-sm text-left overflow-y-auto max-h-64 pr-2"></div>
+        </div>
+    </div>
+
+    <!-- 2. CONFIGURACIÓN RSVP Y MENÚ -->
+    <div class="bg-white/5 p-5 rounded-[15px] mb-8 border border-white/10 text-center">
+        <h3 class="text-lg font-bold uppercase text-[#F0FFF4] mb-6 flex items-center justify-center gap-2">
+            <span>⚙️ Ajustes de Confirmación</span>
+        </h3>
+
+        <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl mb-2">
+            <span class="text-sm font-semibold">Activar RSVP (Asistencia)</span>
+            <div id="admin-attendance-toggle" onclick="window.toggleGiftSwitch('attendance')" class="toggle-switch">
+                <div class="toggle-dot"></div>
+            </div>
+        </div>
+        <p class="text-[10px] text-white/50 mb-4">Muestra u oculta la sección de confirmación en la App.</p>
+
+        <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl mb-2">
+            <span class="text-sm font-semibold">Mostrar Opciones de Menú</span>
+            <div id="admin-menu-toggle" onclick="window.toggleMenuVisibility(event)" class="toggle-switch">
+                <div class="toggle-dot"></div>
+            </div>
+        </div>
+        <p class="text-[10px] text-white/50">Permite a los invitados elegir su menú.</p>
+    </div>
+
+    <!-- 3. REDES Y PROVEEDORES (ACORDEÓN) -->
+    <div class="bg-white/5 p-5 rounded-[15px] mb-8 border border-white/10 text-center">
+        <button onclick="window.toggleAccordion('acc-marketing')"
+            class="w-full flex justify-between items-center text-lg font-bold uppercase text-[#F0FFF4] outline-none">
+            <span>📱 Redes y Proveedores</span>
+            <span id="icon-acc-marketing">▼</span>
+        </button>
+        <div id="acc-marketing" class="hidden mt-6 space-y-4">
+            <input type="text" id="social-insta" placeholder="Instagram @..."
+                class="w-full bg-black/20 p-4 rounded-xl text-white text-center text-sm border border-white/5 outline-none">
+            <hr class="border-white/10">
+            <button onclick="sendAdminEmail()"
+                class="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shadow-lg mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. CONFIGURACIÓN REGALO + NOTIFICACIONES (DENTRO COMO EN PUJALTE) -->
+    <div class="bg-white/5 p-5 rounded-[15px] mb-8 border border-white/10 text-center">
+        <button onclick="window.toggleAccordion('acc-regalo')"
+            class="w-full flex justify-between items-center text-lg font-bold uppercase text-[#F0FFF4] outline-none">
+            <span>🎁 Configuración Regalo</span>
+            <span id="icon-acc-regalo">▼</span>
+        </button>
+        <div id="acc-regalo" class="hidden mt-6 space-y-6">
+            <div id="admin-gift-section">
+                <!-- IBAN / BIZUM -->
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold">🏦 Activar IBAN</span>
+                    <div id="admin-iban-toggle" onclick="window.toggleGiftSwitch('iban')" class="toggle-switch">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <input type="text" id="admin-gift-iban-input" placeholder="IBAN (ESXX...)"
+                    class="w-full bg-black/20 p-3 mt-2 rounded-lg text-white text-xs border border-white/5 outline-none">
+
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-sm font-semibold">🚀 Activar Bizum</span>
+                    <div id="admin-bizum-toggle" onclick="window.toggleGiftSwitch('bizum')" class="toggle-switch">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <input type="tel" id="admin-gift-bizum-input" placeholder="Teléfono para Bizum"
+                    class="w-full bg-black/20 p-3 mt-2 rounded-lg text-white text-xs border border-white/5 outline-none">
+                <!-- BENEFICIARIO / BANCO -->
+                <div class="mt-4 space-y-2">
+                    <input type="text" id="admin-gift-beneficiary-input" placeholder="Nombre del Beneficiario"
+                        class="w-full bg-black/20 p-3 rounded-lg text-white text-xs border border-white/5 outline-none">
+                    <input type="text" id="admin-gift-bank-name-input" placeholder="Nombre del Banco"
+                        class="w-full bg-black/20 p-3 rounded-lg text-white text-xs border border-white/5 outline-none">
+                </div>
+
+                <!-- LISTA DE REGALOS (URL) -->
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-sm font-semibold">🔗 Lista de Regalos (Web)</span>
+                    <div id="admin-giftlist-toggle" onclick="window.toggleGiftSwitch('giftlist')" class="toggle-switch">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <input type="url" id="admin-gift-list-url-input" placeholder="https://..."
+                    class="w-full bg-black/20 p-3 mt-2 rounded-lg text-white text-xs border border-white/5 outline-none">
+            </div>
+
+            <!-- NOTIFICACIONES DENTRO -->
+            <div class="border-t border-white/10 pt-4 mt-4">
+                <div class="flex items-center justify-between p-2">
+                    <span class="text-sm font-semibold">🔔 Notificaciones WhatsApp</span>
+                    <div id="admin-notifications-toggle" onclick="window.toggleGiftSwitch('notifications')"
+                        class="toggle-switch">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <input type="tel" id="admin-notification-phone"
+                    class="w-full bg-black/20 p-4 mt-2 rounded-xl text-white text-center border border-white/5 outline-none"
+                    placeholder="Móvil Notificación">
+            </div>
+
+            <button onclick="window.saveGiftSettings()"
+                class="w-full bg-[#4A785D] py-4 rounded-xl font-bold uppercase text-xs mt-4">💾 Guardar
+                Configuración</button>
+        </div>
+    </div>
+
+    <!-- 5. MÚSICA, QR, PALETA (ACORDEONES) -->
+    <div class="bg-white/5 p-5 rounded-[15px] mb-8 border border-white/10 text-center">
+        <button onclick="window.toggleAccordion('acc-music')"
+            class="w-full flex justify-between items-center text-lg font-bold uppercase text-[#F0FFF4] outline-none">
+            <span>🎵 Música de Fondo</span>
+            <span id="icon-acc-music">▼</span>
+        </button>
+        <div id="acc-music" class="hidden mt-6 space-y-4 text-center">
+            <label for="admin-music-upload"
+                class="w-full bg-white/10 py-6 px-4 rounded-xl border-2 border-dashed border-white/20 cursor-pointer block text-xs font-bold uppercase">📁
+                Cargar MP3</label>
+            <input type="file" id="admin-music-upload" accept="audio/mpeg" class="hidden"
+                onchange="window.handleMusicSelection(this)">
+            <button id="btn-save-music" onclick="window.uploadCustomMusic()" disabled
+                class="w-full bg-[#4A785D] opacity-50 py-4 rounded-xl font-bold uppercase text-xs">💾 Guardar</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col space-y-4 mb-20">
+        <button onclick="toggleAdminEditMode()" id="toggle-edit-mode"
+            class="w-full bg-[#4A785D] py-4 rounded-2xl font-bold text-sm text-white text-center">📸 Borrar
+            Fotos</button>
+        <button onclick="downloadAllPhotos()"
+            class="w-full bg-[#4A785D] py-4 rounded-2xl font-bold text-sm text-white text-center">📥 Descargar Fotos
+            (ZIP)</button>
+        <button onclick="window.location.reload()"
+            class="w-full py-6 text-white/40 uppercase text-[10px] font-bold tracking-widest text-center">Reiniciar
+            App</button>
+    </div>
+
+    <button onclick="window.closeAdminPanel()" id="admin-close-button"
+        class="w-full mt-4 bg-red-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 transition-colors shadow-lg">
+        CERRAR PANEL
+    </button>
+</section>

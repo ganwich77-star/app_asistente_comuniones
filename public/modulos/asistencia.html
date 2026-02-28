@@ -1,0 +1,109 @@
+<section id="asistencia" class="p-4 md:p-6 mx-auto mt-16">
+    <div class="card-rsvp">
+        <div id="rsvp-header" class="titulo">¿Vienes conmigo?</div>
+
+        <div id="rsvp-form-content" class="open">
+            <input type="text" id="guest-names" class="input-nombre attention-pulse"
+                placeholder="Vuestro(s) nombre(s)...">
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="contador-section">
+                    <span class="contador-label">Adultos</span>
+                    <div class="controles">
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('adults', -1)">-</button>
+                        <span id="count-adults" class="valor">2</span>
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('adults', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="contador-section">
+                    <span class="contador-label">Niños</span>
+                    <div class="controles">
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('kids', -1)">-</button>
+                        <span id="count-kids" class="valor">0</span>
+                        <button type="button" class="btn-circular"
+                            onclick="window.changeGuestValue('kids', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu-selection-container" class="dropdown-menu attention-pulse">
+                <div class="dropdown-header" onclick="window.toggleMenuDropdown()">
+                    <span id="dropdown-label">🍽️ Elige tu menú</span>
+                    <span class="flecha">▲</span>
+                </div>
+
+                <div id="menu-dropdown" class="menu-opciones">
+                    <div class="opcion-item">
+                        <span class="opcion-header">🥩 Carne</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Carne',-1)">-</button>
+                            <span id="unit-Carne" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Carne',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🐟 Pescado</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Pescado',-1)">-</button>
+                            <span id="unit-Pescado" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Pescado',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🥗 Vegetariano</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegetariano',-1)">-</button>
+                            <span id="unit-Vegetariano" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegetariano',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🌱 Vegano</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegano',-1)">-</button>
+                            <span id="unit-Vegano" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Vegano',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🌾 Sin Gluten</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('SinGluten',-1)">-</button>
+                            <span id="unit-SinGluten" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('SinGluten',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="opcion-item">
+                        <span class="opcion-header">🍟 Infantil</span>
+                        <div class="controles-mini">
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Infantil',-1)">-</button>
+                            <span id="unit-Infantil" class="valor-mini">0</span>
+                            <button type="button" class="btn-circular-mini"
+                                onclick="window.changeMenuUnit('Infantil',1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <textarea id="guest-comments" class="textarea-alergias"
+                placeholder="¿Algo que debamos saber? Alergias, intolerancias, etc."></textarea>
+
+            <button id="submit-btn" onclick="window.handleRSVP()" class="btn-confirmar">Confirmar Asistencia</button>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Gestión Integral - Pujalte Studio</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            /* Verde Pujalte */
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 20%);
+        }
+
+        .header {
+            width: 100%;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--primary-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 220px;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-glow);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.2) rotate(-5deg);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .arrow {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.4s ease;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .card:hover .arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Secciones */
+        .section-title {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="logo">PUJALTE STUDIO</div>
+        <span class="badge">Centro de Comando 2.0</span>
+    </header>
+
+    <div class="section-title">ADMINISTRACIÓN</div>
+    <div class="dashboard-grid">
+
+        <!-- CARD 1: SUPER ADMIN -->
+        <a href="super_admin.html" class="card">
+            <div>
+                <span class="card-icon">👑</span>
+                <h3 class="card-title">Super Admin</h3>
+                <p class="card-desc">Gestión global de fotógrafos, permisos y configuración del sistema.</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
+        <!-- CARD 2: CREADOR APPS -->
+        <a href="creador_eventos.html" class="card">
+            <div>
+                <span class="card-icon">🛠️</span>
+                <h3 class="card-title">Creador de Apps</h3>
+                <p class="card-desc">Generador de eventos, paquetización ZIP y despliegue rápido.</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
+        <!-- CARD 3: DIRECTORIO -->
+        <a href="admin/directorio.html" class="card">
+            <div>
+                <span class="card-icon">📂</span>
+                <h3 class="card-title">Directorio de Eventos</h3>
+                <p class="card-desc">Buscador en tiempo real, estado de eventos y accesos directos.</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
+    </div>
+
+    <div class="section-title">FORMULARIOS DE ALTA</div>
+    <div class="dashboard-grid">
+
+        <!-- CARD 4: DATOS PROTAGONISTA -->
+        <a href="datos_protagonista.html" class="card">
+            <div>
+                <span class="card-icon">📝</span>
+                <h3 class="card-title">Pack Protagonista</h3>
+                <p class="card-desc">Formulario de toma de datos para clientes (Comuniones, Bodas...).</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
+        <!-- CARD 5: DATOS FOTÓGRAFO -->
+        <a href="acceso_fotografo.html" class="card">
+            <div>
+                <span class="card-icon">📸</span>
+                <h3 class="card-title">Pack Fotógrafo</h3>
+                <p class="card-desc">Formulario de onboarding para nuevos profesionales en la plataforma.</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
+    </div>
+
+    <footer style="margin-top: auto; padding: 40px; color: var(--text-muted); font-size: 0.8rem;">
+        © 2026 Sistema Integral Pujalte Studio | v2.5 Stable
+    </footer>
+
+</body>
+
+</html>

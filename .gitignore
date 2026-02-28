@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+01_HISTORIAL_Y_BACKUPS/
+SUBIR_HOSTING_20260224_2333/
+SUBIR_HOSTING_20260224_2333.zip
+.env
+.npm/
+.vscode/
+dist/

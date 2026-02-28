@@ -1,0 +1,436 @@
+<section id="admin-panel"
+    class="p-6 max-w-md mx-auto mt-20 mb-32 bg-[#1A2E23] text-[#F0FFF4] rounded-[40px] hidden text-center shadow-2xl border border-white/5">
+
+    <h2 class="font-cursive text-5xl mb-12 text-[#F0FFF4]">Gestión</h2>
+
+    <!-- ==========================================
+         CATEGORÍA 0: REDES Y PROVEEDORES
+         ========================================== -->
+    <div class="mb-6">
+        <button onclick="window.toggleAccordion('cat-marketing')"
+            class="w-full flex items-center gap-3 mb-2 px-2 py-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all outline-none">
+            <span class="text-2xl">📱</span>
+            <h3 class="text-xs uppercase font-black tracking-[0.2em] text-[#CDB67E] flex-grow text-left">Redes y
+                Proveedores</h3>
+            <span id="icon-cat-marketing" class="text-xs opacity-50">▼</span>
+        </button>
+
+        <div id="cat-marketing" class="hidden space-y-4 mt-4 px-1 text-center">
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10 space-y-6">
+                <div class="space-y-3">
+                    <input type="text" id="social-insta" placeholder="Instagram @..." class="admin-input-dark">
+                    <input type="text" id="social-fb" placeholder="Facebook URL..." class="admin-input-dark">
+                </div>
+                <hr class="border-white/10">
+                <div class="space-y-3 text-center">
+                    <p class="text-[10px] uppercase font-bold text-[#CDB67E]">🛒 Mis Proveedores</p>
+                    <select id="prov-tipo" class="admin-input-dark appearance-none">
+                        <option value="fotografo">📸 Fotógrafo</option>
+                        <option value="vestido">👔 👗 Traje / Vestido</option>
+                        <option value="peluqueria">✂️ Peluquería</option>
+                        <option value="restaurante">🍽️ Restaurante</option>
+                        <option value="otros">➕ Otros</option>
+                    </select>
+                    <input type="text" id="prov-nombre" placeholder="Nombre (Ej: @pujalte)" class="admin-input-dark">
+                    <button onclick="addVendorToList()"
+                        class="w-full bg-emerald-700 py-3 rounded-xl font-bold text-white text-xs">➕ Añadir</button>
+                    <div id="temp-vendors-list" class="space-y-2 mt-2"></div>
+                </div>
+                <div class="pt-4">
+                    <button onclick="sendAdminEmail()"
+                        class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl flex items-center justify-center gap-3 shadow-xl">
+                        <span class="text-xl">✉️</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Enviar Informe Final</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CATEGORÍA 1: GESTIÓN DE INVITADOS
+         ========================================== -->
+    <div class="mb-6">
+        <button onclick="window.toggleAccordion('cat-guests')"
+            class="w-full flex items-center gap-3 mb-2 px-2 py-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all outline-none">
+            <span class="text-2xl">👥</span>
+            <h3 class="text-xs uppercase font-black tracking-[0.2em] text-[#CDB67E] flex-grow text-left">Lista de
+                Invitados</h3>
+            <span id="icon-cat-guests" class="text-xs opacity-50">▼</span>
+        </button>
+
+        <div id="cat-guests" class="hidden space-y-4 mt-4 px-1">
+            <!-- CONTENIDO DE INVITADOS DIRECTO (SIN BOTÓN INTERMEDIO) -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10 space-y-6">
+                <div id="admin-summary" class="flex justify-around bg-white/5 p-4 rounded-2xl"></div>
+                <div id="meal-summary" class="grid grid-cols-2 gap-3"></div>
+
+                <button onclick="window.markAllGuestsAsRead()"
+                    class="w-full bg-white/5 hover:bg-white/10 text-emerald-300 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] border border-emerald-500/30 transition-all shadow-md active:scale-95 flex items-center justify-center gap-3">
+                    <span class="text-xl">✨</span> LIMPIAR NOTIFICACIONES
+                </button>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="window.showAdminReport()"
+                        class="bg-blue-600/80 text-white py-4 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2"><span>📊</span>
+                        Informe</button>
+                    <button onclick="window.downloadGuestsCSV()"
+                        class="bg-emerald-600/80 text-white py-4 rounded-xl font-bold uppercase text-[10px] flex items-center justify-center gap-2"><span>📥</span>
+                        Excel</button>
+                </div>
+
+                <div class="border-t border-white/5 pt-4">
+                    <button onclick="window.toggleGuestDeleteMode()"
+                        class="w-full bg-red-900/20 hover:bg-red-900/40 text-red-200 py-5 mb-6 rounded-2xl font-black text-xs uppercase border border-red-500/20 tracking-widest shadow-sm transition-all flex items-center justify-center gap-3">
+                        <span class="text-xl">🗑️</span> SELECCIONAR PARA ELIMINAR
+                    </button>
+                    <div id="admin-list"
+                        class="space-y-3 text-sm text-left overflow-y-auto max-h-64 pr-2 custom-scrollbar">
+                        <p class="text-white/30 italic py-4 text-center">Cargando...</p>
+                    </div>
+                    <button id="delete-selected-guests-btn" onclick="window.deleteSelectedGuests()"
+                        class="hidden w-full bg-red-600 text-white py-4 mt-4 rounded-xl font-bold uppercase text-xs">Eliminar
+                        Seleccionados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CATEGORÍA NUEVA: AJUSTES DE CONFIRMACIÓN
+         ========================================== -->
+    <div class="mb-6">
+        <button onclick="window.toggleAccordion('cat-rsvp-settings')"
+            class="w-full flex items-center gap-3 mb-2 px-2 py-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all outline-none">
+            <span class="text-2xl">✍️</span>
+            <h3 class="text-xs uppercase font-black tracking-[0.2em] text-[#CDB67E] flex-grow text-left">Ajustes
+                Confirmación</h3>
+            <span id="icon-cat-rsvp-settings" class="text-xs opacity-50">▼</span>
+        </button>
+
+        <div id="cat-rsvp-settings" class="hidden space-y-4 mt-4 px-1">
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10 space-y-6">
+                <div class="flex items-center justify-between p-4 bg-black/20 rounded-2xl border border-white/5">
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-emerald-100">Activar RSVP</p>
+                        <p class="text-[10px] opacity-60 uppercase tracking-wide mt-1">Muestra sección en App</p>
+                    </div>
+                    <div id="admin-attendance-toggle" onclick="window.toggleGiftSwitch('attendance')"
+                        class="toggle-switch scale-90">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-black/20 rounded-2xl border border-white/5">
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-emerald-100">Elección de Menú</p>
+                        <p class="text-[10px] opacity-60 uppercase tracking-wide mt-1">Dropdown de platos</p>
+                    </div>
+                    <div id="admin-menu-toggle" onclick="window.toggleGiftSwitch('menu')"
+                        class="toggle-switch scale-90">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-black/20 rounded-2xl border border-white/5">
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-emerald-100">Avisos WhatsApp</p>
+                        <p class="text-[10px] opacity-60 uppercase tracking-wide mt-1">Notificar al móvil</p>
+                    </div>
+                    <div id="admin-notifications-toggle" onclick="window.toggleGiftSwitch('notifications')"
+                        class="toggle-switch scale-90">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+
+                <input type="tel" id="admin-notification-phone" oninput="window.handleNotificationPhoneInput(event)"
+                    class="w-full bg-black/40 px-5 py-4 rounded-2xl text-white text-center text-sm font-bold tracking-widest border border-white/10 outline-none focus:border-emerald-500/50 transition-colors placeholder-white/20"
+                    placeholder="Móvil avisos (+34 600...)">
+
+                <button onclick="window.saveGiftSettings()"
+                    class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.15em] shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                    <span class="text-lg">💾</span> GUARDAR AJUSTES RSVP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CATEGORÍA 3: AJUSTES Y HERRAMIENTAS
+         ========================================== -->
+    <div class="mb-10">
+        <button onclick="window.toggleAccordion('cat-tools')"
+            class="w-full flex items-center gap-3 mb-2 px-2 py-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all outline-none">
+            <span class="text-2xl">⚙️</span>
+            <h3 class="text-xs uppercase font-black tracking-[0.2em] text-[#CDB67E] flex-grow text-left">Ajustes y
+                Herramientas</h3>
+            <span id="icon-cat-tools" class="text-xs opacity-50">▼</span>
+        </button>
+
+        <div id="cat-tools" class="hidden space-y-4 mt-4 px-1">
+            <!-- 🎨 PALETA Y ESTILO (MOVIDO AQUÍ) -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-palette-style')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>🖌️ Colores y Estilo</span>
+                    <span id="icon-acc-palette-style">▼</span>
+                </button>
+                <div id="acc-palette-style" class="hidden mt-6 space-y-6">
+                    <div class="palette-selector flex justify-center gap-4">
+                        <div class="palette-option palette-green active" onclick="window.changeColorPalette('light')"
+                            title="Verde"></div>
+                        <div class="palette-option palette-pink" onclick="window.changeColorPalette('pink-white')"
+                            title="Rosa"></div>
+                        <div class="palette-option palette-blue" onclick="window.changeColorPalette('blue-white')"
+                            title="Azul"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 🎵 MÚSICA (MOVIDO AQUÍ) -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10 text-center">
+                <button onclick="window.toggleAccordion('acc-music-custom')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>🎵 Música de Fondo</span>
+                    <span id="icon-acc-music-custom">▼</span>
+                </button>
+                <div id="acc-music-custom" class="hidden mt-6 space-y-4">
+                    <label for="admin-music-upload"
+                        class="w-full flex items-center justify-between bg-black/20 hover:bg-black/30 transition-all p-5 rounded-2xl border border-white/10 cursor-pointer group shadow-sm">
+                        <span id="music-upload-status"
+                            class="text-sm font-black uppercase tracking-wider text-emerald-100 group-hover:text-white transition-colors flex items-center gap-2">
+                            <span class="text-xl">📁</span> Seleccionar MP3
+                        </span>
+                        <div class="bg-white/10 p-3 rounded-xl group-hover:bg-white/20 transition-all text-lg">🎤</div>
+                        <input type="file" id="admin-music-upload" accept="audio/mpeg" class="hidden"
+                            onchange="window.handleMusicSelection(this)">
+                    </label>
+                    <button id="btn-save-music" onclick="window.uploadCustomMusic()" disabled
+                        class="w-full bg-emerald-700 opacity-50 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-md transition-all">
+                        Guardar Música
+                    </button>
+                    <button onclick="window.resetDefaultMusic()"
+                        class="text-[9px] uppercase font-bold text-red-400/70 hover:text-red-400">Restaurar
+                        Original</button>
+                </div>
+            </div>
+
+            <!-- 🎁 REGALO -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-regalo')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>🎁 Datos de Regalo (IBAN)</span>
+                    <span id="icon-acc-regalo">▼</span>
+                </button>
+                <div id="acc-regalo" class="hidden mt-6">
+                    <div id="admin-gift-section" class="space-y-4">
+                        <!-- IBAN -->
+                        <div class="flex justify-between items-center">
+                            <h4 class="flex items-center gap-2 text-sm font-bold uppercase text-[#CDB67E]">
+                                <span>🏦</span><span>Activar IBAN</span>
+                            </h4>
+                            <div id="admin-iban-toggle" class="toggle-switch"
+                                onclick="window.toggleAdminSubSection('iban')">
+                                <div class="toggle-dot"></div>
+                            </div>
+                        </div>
+                        <div id="iban-details-content"
+                            class="pl-4 ml-1 mt-4 border-l-2 border-white/10 space-y-4 mb-6 hidden">
+                            <input type="text" id="admin-gift-iban-input" placeholder="IBAN (ESXX...)"
+                                class="admin-input-dark" oninput="window.formatIbanInput(this)">
+                            <input type="text" id="admin-gift-beneficiary-input" placeholder="Beneficiario"
+                                class="admin-input-dark">
+                            <input type="text" id="admin-gift-bank-name-input" placeholder="Nombre del Banco"
+                                class="admin-input-dark">
+                        </div>
+
+                        <!-- BIZUM -->
+                        <div class="flex justify-between items-center mt-6">
+                            <h4 class="flex items-center gap-2 text-sm font-bold uppercase text-[#CDB67E]">
+                                <span>🚀</span><span>Activar Bizum</span>
+                            </h4>
+                            <div id="admin-bizum-toggle" class="toggle-switch"
+                                onclick="window.toggleAdminSubSection('bizum')">
+                                <div class="toggle-dot"></div>
+                            </div>
+                        </div>
+                        <div id="bizum-details-content"
+                            class="pl-4 ml-1 mt-4 border-l-2 border-white/10 space-y-4 mb-6 hidden">
+                            <div
+                                class="flex-grow flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3">
+                                <span class="text-xl text-white/50">🚀</span>
+                                <input type="tel" id="admin-gift-bizum-input" placeholder="Teléfono Bizum"
+                                    class="w-full bg-transparent text-white py-3 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- LISTA DE REGALOS -->
+                        <div class="flex justify-between items-center mt-6">
+                            <h4 class="flex items-center gap-2 text-sm font-bold uppercase text-[#CDB67E]">
+                                <span>📜</span><span>Activar Lista Regalos</span>
+                            </h4>
+                            <div id="admin-giftlist-toggle" class="toggle-switch"
+                                onclick="window.toggleAdminSubSection('giftlist')">
+                                <div class="toggle-dot"></div>
+                            </div>
+                        </div>
+                        <div id="giftlist-details-content"
+                            class="pl-4 ml-1 mt-4 border-l-2 border-white/10 space-y-4 mb-6 hidden">
+                            <input type="text" id="admin-gift-list-url-input"
+                                placeholder="URL de la lista (https://...)" class="admin-input-dark">
+                        </div>
+
+                        <button onclick="window.saveGiftSettings()"
+                            class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg mt-4 uppercase text-[10px] tracking-widest">Guardar
+                            Datos de Regalo</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🍽️ PAGO MENÚ -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-menupayment-admin')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>🍽️ Pago Menú Invitados</span>
+                    <span id="icon-acc-menupayment-admin">▼</span>
+                </button>
+                <div id="acc-menupayment-admin" class="hidden mt-6">
+                    <div id="admin-menupayment-section" class="space-y-4">
+                        <div class="flex justify-between items-center text-left">
+                            <div>
+                                <p class="text-sm font-bold text-emerald-100">Activar Pago Menú</p>
+                                <p class="text-[9px] opacity-60 uppercase">Muestra precio a los invitados</p>
+                            </div>
+                            <div id="admin-menupayment-toggle" class="toggle-switch"
+                                onclick="window.toggleAdminSubSection('menupayment')">
+                                <div class="toggle-dot"></div>
+                            </div>
+                        </div>
+                        <div id="menupayment-details-content" class="space-y-4 hidden">
+                            <input type="number" id="admin-menupayment-price" placeholder="Precio Adulto (€)"
+                                class="admin-input-dark">
+                            <input type="number" id="admin-menupayment-child-price" placeholder="Precio Niño (€)"
+                                class="admin-input-dark">
+                        </div>
+                        <button onclick="window.saveMenuPaymentSettings()"
+                            class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg text-[10px] uppercase tracking-widest">Guardar
+                            Pago Menú</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 🕐 HORARIOS DEL EVENTO -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-horarios')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>🕐 Horarios del Evento</span>
+                    <span id="icon-acc-horarios">▼</span>
+                </button>
+                <div id="acc-horarios" class="hidden mt-6 space-y-4 text-left">
+
+                    <div class="space-y-1">
+                        <label class="text-[9px] uppercase font-black text-[#CDB67E] tracking-widest ml-1">⛪ Hora
+                            Ceremonia</label>
+                        <input type="text" id="horario-ceremony-time" placeholder="Ej: 12:00h"
+                            class="w-full bg-white/5 border border-white/10 rounded-lg text-white py-3 px-4 outline-none focus:border-[#CDB67E] text-sm">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[9px] uppercase font-black text-[#CDB67E] tracking-widest ml-1">🍽️ Hora
+                            Banquete</label>
+                        <input type="text" id="horario-banquet-time" placeholder="Ej: 14:30h"
+                            class="w-full bg-white/5 border border-white/10 rounded-lg text-white py-3 px-4 outline-none focus:border-[#CDB67E] text-sm">
+                    </div>
+
+                    <button onclick="window.saveEventSchedule()"
+                        class="w-full bg-[#4A785D] text-white font-bold py-4 px-4 rounded-xl hover:bg-[#3E644D] transition-colors shadow-lg mt-2 flex items-center justify-center gap-2">
+                        <span>💾</span> Guardar Horarios
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- 📲 QR Y FOTOS -->
+            <!-- 📲 CÓDIGO QR -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-qr')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>📲 Código QR</span>
+                    <span id="icon-acc-qr">▼</span>
+                </button>
+                <div id="acc-qr" class="hidden mt-6 space-y-6">
+                    <div class="flex flex-col items-center gap-4">
+                        <div id="admin-qr-display"
+                            class="bg-white p-4 rounded-2xl shadow-xl border-4 border-emerald-900/10"></div>
+                        <button onclick="window.downloadAppQR()"
+                            class="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all shadow-lg active:scale-95">
+                            <span class="text-3xl">📥</span>
+                            <span class="text-sm font-black uppercase tracking-widest text-blue-100">Descargar QR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📸 GESTIÓN FOTOS -->
+            <div class="bg-white/5 p-5 rounded-[20px] border border-white/10">
+                <button onclick="window.toggleAccordion('acc-photos')"
+                    class="w-full flex justify-between items-center text-sm font-bold uppercase outline-none">
+                    <span>📸 Gestión Fotos</span>
+                    <span id="icon-acc-photos">▼</span>
+                </button>
+                <div id="acc-photos" class="hidden mt-6 space-y-6">
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="toggleAdminEditMode()" id="toggle-edit-mode"
+                            class="w-full bg-white/10 hover:bg-white/20 border border-white/20 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all shadow-lg active:scale-95">
+                            <span class="text-3xl">📸</span>
+                            <span class="text-sm font-black uppercase tracking-widest text-[#E2E8F0]">Borrar
+                                Fotos</span>
+                        </button>
+                        <button onclick="downloadAllPhotos()"
+                            class="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all shadow-lg active:scale-95">
+                            <span class="text-3xl">📥</span>
+                            <span class="text-sm font-black uppercase tracking-widest text-blue-100">Descargar
+                                ZIP</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="window.location.reload()"
+        class="w-full py-6 rounded-2xl border border-white/10 bg-white/5 text-white/40 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-white/10 transition-all">
+        🔄 Reiniciar Aplicación
+    </button>
+
+
+    <button onclick="window.closeAdminPanel()" id="admin-close-button"
+        class="w-full mt-8 bg-red-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 transition-colors shadow-lg">
+        CERRAR PANEL
+    </button>
+</section>
+
+<style>
+    .admin-input-dark {
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        color: white;
+        text-align: center;
+        font-size: 0.875rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        outline: none;
+    }
+
+    .admin-input-dark:focus {
+        border-color: #CDB67E;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+</style>

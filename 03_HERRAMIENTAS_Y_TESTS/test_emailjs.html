@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba EmailJS - Lead</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #10b981;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .config {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .config h3 {
+            margin-top: 0;
+            color: #92400e;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #059669;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🧪 Prueba de Email con EmailJS</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Completa la configuración y envía un email de prueba
+        </p>
+
+        <div class="config">
+            <h3>⚙️ Configuración de EmailJS</h3>
+            <label>Service ID:</label>
+            <input type="text" id="service-id" value="service_nkrndin" placeholder="service_xxxxx">
+
+            <label>Template ID:</label>
+            <input type="text" id="template-id" placeholder="template_xxxxx">
+
+            <label>Public Key:</label>
+            <input type="text" id="public-key" placeholder="Tu Public Key">
+        </div>
+
+        <h3>📧 Datos del Lead de Prueba</h3>
+        <label>Nombre del Cliente:</label>
+        <input type="text" id="nombre" value="Ana García" placeholder="Nombre completo">
+
+        <label>Teléfono:</label>
+        <input type="tel" id="telefono" value="600112233" placeholder="9 dígitos">
+
+        <label>Email:</label>
+        <input type="email" id="email" value="ana.garcia@email.com" placeholder="email@ejemplo.com">
+
+        <button onclick="sendTestEmail()">📨 Enviar Email de Prueba</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function sendTestEmail() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = '';
+            resultDiv.innerHTML = '⏳ Enviando email...';
+
+            // Obtener valores de configuración
+            const serviceId = document.getElementById('service-id').value.trim();
+            const templateId = document.getElementById('template-id').value.trim();
+            const publicKey = document.getElementById('public-key').value.trim();
+
+            // Validar configuración
+            if (!serviceId || !templateId || !publicKey) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '❌ Por favor, completa todos los campos de configuración (Service ID, Template ID y Public Key)';
+                return;
+            }
+
+            // Obtener datos del formulario
+            const nombre = document.getElementById('nombre').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!nombre || !telefono || !email) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '❌ Por favor, completa todos los campos del lead';
+                return;
+            }
+
+            // Preparar parámetros para la plantilla
+            const fechaActual = new Date().toLocaleString('es-ES', {
+                dateStyle: 'long',
+                timeStyle: 'short'
+            });
+
+            const templateParams = {
+                nombre_fotografo: 'Equipo Pujalte',
+                nombre_cliente: nombre,
+                telefono: telefono,
+                email: email,
+                oferta_detalle: '10% de descuento en cualquier pack de sesiones (excepto promociones específicas)',
+                fecha_registro: fechaActual,
+                to_email: 'apps@pujaltefotografia.es' // Email destino
+            };
+
+            try {
+                // Inicializar EmailJS
+                emailjs.init(publicKey);
+
+                // Enviar email
+                const response = await emailjs.send(
+                    serviceId,
+                    templateId,
+                    templateParams
+                );
+
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    ✅ <strong>¡Email enviado correctamente!</strong><br><br>
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Message:</strong> ${response.text}<br><br>
+                    Revisa la bandeja de entrada de <strong>apps@pujaltefotografia.es</strong>
+                `;
+
+                console.log('✅ Email enviado:', response);
+
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    ❌ <strong>Error al enviar email</strong><br><br>
+                    ${error.text || error.message || 'Error desconocido'}<br><br>
+                    <strong>Verifica:</strong><br>
+                    • Service ID correcto<br>
+                    • Template ID correcto<br>
+                    • Public Key correcto<br>
+                    • Plantilla configurada en EmailJS
+                `;
+                console.error('❌ Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

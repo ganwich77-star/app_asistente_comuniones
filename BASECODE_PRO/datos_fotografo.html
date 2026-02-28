@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Registro Profesional - Basecode</title>
+    <link rel="icon" type="image/png" href="./assets/logo basecode.png">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Material+Icons+Outlined&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D4AF37", // Gold
+                        "background-dark": "#0A0A0B",
+                        "card-dark": "#161618",
+                    },
+                    fontFamily: {
+                        display: ["'Playfair Display'", "serif"],
+                        sans: ["'Inter'", "sans-serif"],
+                        mono: ["'Space Mono'", "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .input-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 1.25rem;
+        }
+
+        .input-box .material-icons-outlined {
+            margin-top: 0.5rem;
+        }
+
+        .input-box:focus-within {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .floating-label-group input:placeholder-shown~label {
+            transform: translateY(1.4rem) scale(1);
+            color: #9ca3af;
+        }
+
+        .floating-label-group input:focus~label,
+        .floating-label-group input:not(:placeholder-shown)~label {
+            transform: translateY(0.4rem) scale(0.8);
+            color: #D4AF37;
+        }
+
+        #legal-modal {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+  <script type="module" crossorigin src="./js/datos_fotografo.js"></script>
+  <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
+  <link rel="modulepreload" crossorigin href="./js/config.js">
+</head>
+
+<body class="bg-background-dark text-gray-100 font-sans min-h-screen pb-32">
+
+    <!-- MODAL LEGAL -->
+    <div id="legal-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-6">
+        <div class="bg-card-dark border border-primary/20 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+            <div class="text-center">
+                <img src="./assets/logo basecode.png" class="h-20 mx-auto mb-6" alt="Basecode">
+                <h2 class="font-display text-2xl font-semibold text-primary mb-2">Acuerdo de Colaboración</h2>
+                <p class="text-xs text-gray-400">Campaña Comuniones 2026</p>
+            </div>
+
+            <div
+                class="max-h-60 overflow-y-auto pr-2 space-y-4 text-[10px] text-gray-400 leading-relaxed border-y border-white/5 py-4 scrollbar-hide text-left">
+                <p><strong>1. Finalización del Servicio:</strong> El servicio técnico concluirá el 1 de julio de 2026.
+                    En dicha fecha, se ejecutará un borrado automático de todas las bases de datos. Es responsabilidad
+                    del Fotógrafo exportar sus leads antes de esta fecha.</p>
+                <p><strong>2. Propiedad de los Datos:</strong> Los leads captados mediante la sección "Regalo" son
+                    propiedad exclusiva del Fotógrafo. Basecode no utilizará ni cederá estos datos.</p>
+                <p><strong>3. Responsabilidad:</strong> El Fotógrafo es el Responsable del Tratamiento de los datos de
+                    sus clientes. Garantiza contar con el consentimiento necesario para el uso de esta plataforma.</p>
+            </div>
+
+            <div class="flex flex-col items-center gap-3 px-2">
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <div class="relative flex items-center mt-0.5">
+                        <input type="checkbox" id="legal-checkbox-main"
+                            class="peer appearance-none w-5 h-5 border-2 border-primary/30 rounded-md checked:bg-primary checked:border-primary transition-all">
+                        <svg class="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <span
+                        class="text-[10px] uppercase font-bold text-gray-400 leading-tight text-center group-hover:text-primary transition-colors">
+                        Acepto la <a href="#" onclick="window.showPrivacyPolicyModal(); event.preventDefault();"
+                            class="text-primary underline">Privacidad</a> y los <a href="#"
+                            onclick="window.showTermsModal(); event.preventDefault();"
+                            class="text-primary underline">Términos de Uso</a> para entrar.
+                    </span>
+                </label>
+            </div>
+
+            <button id="accept-legal" disabled
+                class="w-full bg-primary text-black font-black py-4 rounded-2xl opacity-50 cursor-not-allowed hover:brightness-110 transition-all active:scale-95 shadow-xl shadow-primary/20 uppercase tracking-widest text-xs">
+                EMPEZAR CONFIGURACIÓN
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO FORMULARIO -->
+    <div id="main-content-wrapper" class="hidden opacity-0 transition-opacity duration-700">
+        <header class="pt-16 pb-12 px-6 text-center">
+            <h1 class="font-display text-8xl font-black text-primary italic tracking-tight leading-none">Mi Perfil</h1>
+            <p
+                class="text-[10px] uppercase tracking-[0.5rem] text-gray-400 mt-8 max-w-sm mx-auto leading-relaxed font-bold opacity-60">
+                COMPLETA TU IDENTIDAD PARA EL ASISTENTE DIGITAL
+            </p>
+        </header>
+
+        <main class="max-w-md mx-auto px-6">
+            <form id="profile-form" class="space-y-10">
+
+                <section class="space-y-8">
+                    <div class="flex items-center space-x-5 border-l-4 border-primary pl-6">
+                        <span class="material-icons-outlined text-primary text-2xl opacity-90">fingerprint</span>
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-100">Identidad Visual</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">business</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="comercial" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="comercial">Nombre Comercial / Estudio</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">auto_awesome</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="lema" placeholder=" " type="text" />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="lema">Lema / Eslogan del Estudio (Opcional)</label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label
+                                class="block text-[9px] uppercase tracking-[0.2em] font-bold text-gray-500 px-1">Logotipo
+                                (Fondo Transparente)</label>
+                            <div id="logo-container"
+                                class="relative border-2 border-dashed border-primary/20 rounded-3xl p-8 flex flex-col items-center justify-center bg-white/5 transition-all hover:bg-white/10 hover:border-primary/40">
+                                <span
+                                    class="material-icons-outlined text-primary/60 text-3xl mb-2">add_photo_alternate</span>
+                                <p class="text-[10px] uppercase tracking-[0.15em] font-bold text-primary/60">Pulsar para
+                                    subir</p>
+                                <input id="photo-upload" class="absolute inset-0 opacity-0 cursor-pointer" type="file"
+                                    accept="image/png, image/jpeg, image/webp" />
+                            </div>
+                        </div>
+
+
+                    </div>
+                </section>
+
+                <section class="space-y-8">
+                    <div class="flex items-center space-x-5 border-l-4 border-primary pl-6">
+                        <span class="material-icons-outlined text-primary text-2xl opacity-90">alternate_email</span>
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-100">Contacto y Redes</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">camera_alt</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="instagram" placeholder=" " type="text" />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="instagram">Instagram</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">facebook</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="facebook" placeholder=" " type="text" />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="facebook">Facebook</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">phone_iphone</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="whatsapp" placeholder=" " type="tel" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="whatsapp">WhatsApp</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">alternate_email</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="email" placeholder=" " type="email" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="email">Email de Contacto</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">language</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="web" placeholder=" " type="text" />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="web">Sitio Web</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-primary/40 text-xl mr-4">star_rate</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="google_reviews" placeholder=" " type="text" />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-primary/80"
+                                    for="google_reviews">Enlace Reseñas Google</label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="space-y-8">
+                    <div class="flex items-center space-x-5 border-l-4 border-emerald-500 pl-6">
+                        <span
+                            class="material-icons-outlined text-emerald-500 text-2xl opacity-90">account_balance</span>
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-100">Datos Fiscales</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span
+                                class="material-icons-outlined text-emerald-500/40 text-xl mr-4">account_balance</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="razon" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="razon">Razón Social</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">corporate_fare</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="nif" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="nif">NIF / CIF (Empresa)</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">tty</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="tel_fiscal" placeholder=" " type="tel" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="tel_fiscal">Teléfono Fiscal</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">place</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="direccion" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="direccion">Dirección Fiscal / Oficina</label>
+                            </div>
+                        </div>
+
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">location_city</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="localidad" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="localidad">Localidad</label>
+                            </div>
+                        </div>
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">map</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="provincia" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="provincia">Provincia</label>
+                            </div>
+                        </div>
+                        <div class="relative floating-label-group input-box rounded-2xl overflow-hidden">
+                            <span class="material-icons-outlined text-emerald-500/40 text-xl mr-4">pin_drop</span>
+                            <div class="flex-1 relative">
+                                <input
+                                    class="block w-full pt-8 pb-3 bg-transparent border-0 focus:ring-0 peer text-gray-100 text-sm"
+                                    id="cp" placeholder=" " type="text" required />
+                                <label
+                                    class="absolute left-0 top-0 transition-all duration-200 origin-[0] pointer-events-none text-[9px] uppercase tracking-[0.2em] font-bold text-emerald-500/80"
+                                    for="cp">Código Postal</label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="pt-8">
+                    <button id="btn-save" type="submit"
+                        class="w-full bg-primary hover:brightness-110 text-black font-black py-5 rounded-2xl flex items-center justify-center space-x-3 transition-all active:scale-95 shadow-2xl shadow-primary/20">
+                        <span class="material-icons-outlined text-2xl">verified_user</span>
+                        <span class="uppercase tracking-[0.2em] text-sm">Finalizar Registro</span>
+                    </button>
+                    <p class="text-[10px] text-center text-gray-500 mt-6 uppercase tracking-widest leading-relaxed">
+                        Al finalizar recibirás un email de confirmación<br>con tus datos de acceso al panel
+                    </p>
+                </div>
+            </form>
+
+            <footer class="pt-24 pb-16 text-center opacity-40">
+                <img src="./assets/logo basecode.png" alt="Logo" class="h-16 mx-auto mb-6 grayscale invert">
+                <p class="text-[9px] uppercase tracking-[0.5em] mb-2">Powered by</p>
+                <p class="text-primary font-bold tracking-[0.3em] text-xs uppercase">Basecode</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- MODAL DE ÉXITO ESTILIZADO -->
+    <div id="success-modal"
+        class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/80 backdrop-blur-xl p-6">
+        <div
+            class="bg-card-dark border border-primary/30 rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl space-y-8 text-center relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+
+            <div class="relative">
+                <div
+                    class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/30">
+                    <span class="material-icons-outlined text-primary text-4xl">pending</span>
+                </div>
+
+                <h2 class="font-display text-3xl font-bold text-white mb-4 italic">¡Registro Recibido!</h2>
+                <div class="space-y-4 text-gray-400 text-xs leading-relaxed uppercase tracking-widest font-medium">
+                    <p>Tu solicitud ha sido enviada correctamente.</p>
+                    <p class="text-primary/80">Recibirás un email con tus credenciales de acceso una vez que tu perfil
+                        sea aprobado.</p>
+                    <p class="text-gray-500 text-[10px] normal-case tracking-normal">Esto suele tardar menos de 24
+                        horas.</p>
+                </div>
+            </div>
+
+            <button onclick="window.closeSuccessModal()"
+                class="w-full bg-primary text-black font-black py-4 rounded-2xl hover:brightness-110 transition-all active:scale-95 shadow-xl shadow-primary/20 uppercase tracking-[0.2em] text-xs">
+                ENTENDIDO
+            </button>
+        </div>
+    </div>
+
+    <!-- MODALES LEGALES AUXILIARES -->
+    <div id="privacy-policy-modal"
+        class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div
+            class="bg-card-dark border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="window.closePrivacyPolicyModal()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors">
+                <span class="material-icons-outlined">close</span>
+            </button>
+            <div class="prose prose-invert prose-xs">
+                <h2 class="font-display text-2xl text-primary mb-6">Política de Privacidad</h2>
+                <p><strong>Responsable:</strong> Basecode (José Pujalte Molina).</p>
+                <p><strong>Finalidad:</strong> Gestión de tu perfil profesional en nuestra red de asistentes digitales.
+                </p>
+                <p><strong>Legitimación:</strong> Consentimiento del interesado.</p>
+                <p>En cumplimiento del RGPD, te informamos que tus datos personales serán tratados de forma confidencial
+                    y no serán cedidos a terceros.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="terms-modal"
+        class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+        <div
+            class="bg-card-dark border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="window.closeTermsModal()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors">
+                <span class="material-icons-outlined">close</span>
+            </button>
+            <div class="prose prose-invert prose-xs">
+                <h2 class="font-display text-2xl text-primary mb-6">Términos y Condiciones</h2>
+                <p>Este servicio es exclusivamente para fotógrafos colaboradores de Basecode durante la
+                    campaña de Comuniones 2026. La plataforma facilita la captura de leads y gestión de eventos, cuya
+                    propiedad intelectual del software reside en José Pujalte Molina.</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

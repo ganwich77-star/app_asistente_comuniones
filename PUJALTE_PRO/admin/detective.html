@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 Buscador de Eventos Perdidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white p-10 font-mono">
+
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-yellow-500 mb-6">🕵️‍♂️ Detective de Datos</h1>
+
+        <div class="flex gap-4 mb-8">
+            <input type="text" id="searchInput" placeholder="Nombre (ej: David, Alma)"
+                class="flex-1 p-3 rounded bg-gray-800 border border-gray-700 text-white focus:border-yellow-500 outline-none">
+            <button onclick="buscar()"
+                class="bg-yellow-600 hover:bg-yellow-700 px-6 py-3 rounded font-bold">BUSCAR</button>
+        </div>
+
+        <div id="results" class="space-y-4"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 1. CONFIG ANTIGUA (Donde están Alma y David)
+        const oldConfig = {
+            apiKey: "AIzaSyBzmXno25akS1xsPlRqR6KFSt_JQRZF9sY",
+            authDomain: "comunion-nora-2026.firebaseapp.com",
+            projectId: "comunion-nora-2026",
+            storageBucket: "comunion-nora-2026.firebasestorage.app",
+            messagingSenderId: "7062888846",
+            appId: "1:7062888846:web:placeholder"
+        };
+
+        // 2. CONFIG NUEVA (Donde está Nora)
+        const newConfig = {
+            apiKey: "AIzaSyBsiG9CByzLlrvGgjctJshIrc2k-Ck1DWM",
+            authDomain: "asistente-digital-comuniones.firebaseapp.com",
+            projectId: "asistente-digital-comuniones",
+            storageBucket: "asistente-digital-comuniones.firebasestorage.app",
+            messagingSenderId: "318953930173",
+            appId: "1:318953930173:web:25bbcbca953e978ffa6d4"
+        };
+
+        // Inicializar AMBAS apps
+        const oldApp = initializeApp(oldConfig, "oldApp");
+        const newApp = initializeApp(newConfig, "newApp");
+
+        const dbOld = getFirestore(oldApp);
+        const dbNew = getFirestore(newApp);
+
+        window.buscar = async () => {
+            const term = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!term) return alert("Escribe un nombre");
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p class="text-yellow-400">⏳ Buscando en Bases de Datos ANTIGUA y NUEVA...</p>';
+
+            const hits = [];
+
+            try {
+                // 1. Buscar en ANTIGUA (Donde se perdieron)
+                // PRIORIDAD: 'eventos' (tiene todos los datos) > 'datos_protagonistas' > '_internal_temp' (solo resumen)
+                const oldColls = ["eventos", "datos_protagonistas", "_internal_temp"];
+                for (const colName of oldColls) {
+                    try {
+                        const snap = await getDocs(collection(dbOld, colName));
+                        snap.forEach(doc => {
+                            const d = doc.data();
+                            const name = (d.protagonistName || "").toLowerCase();
+                            const id = doc.id.toLowerCase();
+                            if ((name.includes(term) || id.includes(term)) && term.length > 2) {
+                                hits.push({ type: `ANTIGUA (${colName})`, id: doc.id, data: d, origin: 'OLD' });
+                            }
+                        });
+                    } catch (err) { console.log("Skipping col", colName); }
+                }
+
+                // 2. Buscar en NUEVA (Por si acaso ya están)
+                const newColls = ["datos_protagonistas", "_internal_temp"];
+                for (const colName of newColls) {
+                    try {
+                        const snap = await getDocs(collection(dbNew, colName));
+                        snap.forEach(doc => {
+                            const d = doc.data();
+                            const name = (d.protagonistName || "").toLowerCase();
+                            if ((name.includes(term) || doc.id.toLowerCase().includes(term)) && term.length > 2) {
+                                hits.push({ type: `NUEVA (${colName})`, id: doc.id, data: d, origin: 'NEW' });
+                            }
+                        });
+                    } catch (err) { }
+                }
+
+                renderResults(hits);
+
+            } catch (e) {
+                resultsDiv.innerHTML = `<p class="text-red-500">Error: ${e.message}</p>`;
+            }
+        };
+
+        function renderResults(hits) {
+            const div = document.getElementById('results');
+            if (hits.length === 0) {
+                div.innerHTML = '<p class="text-red-400">❌ No se encontró nada con ese nombre en ninguna base de datos.</p>';
+                return;
+            }
+
+            // Eliminar duplicados por ID
+            const uniqueHits = hits.filter((v, i, a) => a.findIndex(t => (t.id === v.id && t.origin === v.origin)) === i);
+
+            div.innerHTML = '';
+            uniqueHits.forEach(hit => {
+                const el = document.createElement('div');
+                el.className = "bg-gray-800 p-4 rounded border border-gray-700";
+
+                let btnHtml = '';
+
+                if (hit.origin === 'OLD') {
+                    // Botón de MIGRAR
+                    const safeData = encodeURIComponent(JSON.stringify(hit.data));
+                    btnHtml = `<button onclick="migrar('${hit.id}', '${safeData}')" class="mt-3 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-bold w-full">🚀 IMPORTAR A CREADOR NUEVO</button>`;
+                } else {
+                    btnHtml = `<span class="text-green-500 text-xs font-bold">✅ YA ESTÁ EN EL NUEVO SISTEMA (Status: ${hit.data.status || '?'})</span>`;
+                }
+
+                el.innerHTML = `
+                    <div class="flex justify-between text-sm text-gray-400 mb-2">
+                        <span>${hit.type}</span>
+                        <span>ID: ${hit.id}</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">${hit.data.protagonistName || 'Sin Nombre'}</h2>
+                    
+                    <div class="my-2 text-xs text-gray-500">
+                        <p>Padres: ${hit.data.parentName || '-'}</p>
+                        <p>Fecha: ${hit.data.eventDate || '-'}</p>
+                        <p class="mt-2 text-yellow-500 font-mono">
+                           📡 Datos encontrados: 
+                           ${hit.data.ceremony || hit.data.ceremonia || hit.data.ceremonyPlace ? '✅ Ceremonia' : '❌ Ceremonia'} | 
+                           ${hit.data.banquet || hit.data.banquete || hit.data.banquetPlace ? '✅ Banquete' : '❌ Banquete'} |
+                           ${(hit.data.introPhotos && hit.data.introPhotos.length) || hit.data.introFoto1 || hit.data.foto1 ? '✅ Fotos' : '❌ Fotos'}
+                        </p>
+                    </div>
+
+                    ${btnHtml}
+                `;
+                div.appendChild(el);
+            });
+        }
+
+        window.migrar = async (oldId, dataStr) => {
+            if (!confirm("¿Copiar estos datos de la base antigua a la nueva para poder editarlos?")) return;
+
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+
+                // Helper para buscar anidado o plano (Inglés/Español)
+                const getNested = (obj, key1, key2, prop) => {
+                    return obj[key1]?.[prop] || obj[key2]?.[prop] || "";
+                };
+
+                // Preparar objeto compatible para el BUZÓN
+                const newData = {
+                    protagonistName: data.protagonistName,
+                    parentName: data.parentName || "",
+                    parentDNI: data.parentDNI || "",
+                    eventDate: data.eventDate || "",
+
+                    // INTENTO DE RECUPERACIÓN ROBUSTA (English/Spanish keys + Flat/Nested)
+                    ceremonyPlace: data.ceremonyPlace || getNested(data, 'ceremony', 'ceremonia', 'place') || getNested(data, 'ceremony', 'ceremonia', 'lugar') || "",
+                    ceremonyTime: data.ceremonyTime || getNested(data, 'ceremony', 'ceremonia', 'time') || getNested(data, 'ceremony', 'ceremonia', 'hora') || "",
+                    ceremonyLocation: data.ceremonyLocation || getNested(data, 'ceremony', 'ceremonia', 'location') || getNested(data, 'ceremony', 'ceremonia', 'ciudad') || "",
+
+                    banquetPlace: data.banquetPlace || getNested(data, 'banquet', 'banquete', 'place') || getNested(data, 'banquet', 'banquete', 'lugar') || "",
+                    banquetTime: data.banquetTime || getNested(data, 'banquet', 'banquete', 'time') || getNested(data, 'banquet', 'banquete', 'hora') || "",
+                    banquetLocation: data.banquetLocation || getNested(data, 'banquet', 'banquete', 'location') || getNested(data, 'banquet', 'banquete', 'ciudad') || "",
+
+                    // Recuperar fotos antiguas (robusto)
+                    introPhotos: data.introPhotos || [
+                        data.introFoto1 || data.foto1 || data.img1 || "",
+                        data.introFoto2 || data.foto2 || data.img2 || "",
+                        data.introFoto3 || data.foto3 || data.img3 || ""
+                    ].filter(Boolean),
+
+                    savedAt: new Date().toISOString(),
+                    status: 'pending',
+                    importedFromOldDB: oldId,
+                    migrationNote: "Recovered via Detective Tool v2"
+                };
+
+                // Guardar en la colección NUEVA 'datos_protagonistas'
+                await setDoc(doc(dbNew, "datos_protagonistas", "MIGRATED_" + oldId + "_" + Date.now()), newData);
+
+                alert("✅ ¡ÉXITO! Datos migrados correctamente.\n\nAhora ve al Creador de Apps (Modo Oscuro) y recarga la página. Verás el registro arriba del todo.");
+
+                // Refrescar búsqueda para ver que ya sale en la nueva
+                buscar();
+
+            } catch (e) {
+                alert("Error migrando: " + e.message);
+                console.error(e);
+            }
+        };
+    </script>
+</body>
+
+</html>
