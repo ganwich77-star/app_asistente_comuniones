@@ -59,3 +59,5 @@ function enforceManagementSecurity() {
 }
 
 export { BRANDS, getCurrentBrand, enforceManagementSecurity };
+
+// v1.1 - Sincronización multi-dominio activa.
