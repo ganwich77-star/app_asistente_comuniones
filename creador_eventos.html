@@ -1205,24 +1205,26 @@
             if (poweredBy) poweredBy.innerText = brand.poweredBy;
             if (dockLogo) dockLogo.src = brand.logo;
 
-            // Actualizar Selector de Dominios
+            // Actualizar Selector de Dominios (Mostrar siempre ambos en el creador)
             const domainSelect = document.getElementById('domainSelect');
             if (domainSelect) {
                 domainSelect.innerHTML = '';
 
-                // Opción del dominio actual del brand
-                const optBrand = document.createElement('option');
-                optBrand.value = `https://${brand.domain}/${brand.eventFolder}`;
-                optBrand.innerText = brand.domain;
-                domainSelect.appendChild(optBrand);
+                // Opción Pujalte
+                const optPujalte = document.createElement('option');
+                optPujalte.value = `https://${BRANDS.pujalte.domain}/${BRANDS.pujalte.eventFolder}`;
+                optPujalte.innerText = BRANDS.pujalte.domain;
+                domainSelect.appendChild(optPujalte);
 
-                // Si estamos en Pujalte, mostrar también opción para Basecode (como herramienta de gestión)
-                if (brand.id === 'pujalte') {
-                    const optBasecode = document.createElement('option');
-                    optBasecode.value = `https://${BRANDS.basecode.domain}/${BRANDS.basecode.eventFolder}`;
-                    optBasecode.innerText = BRANDS.basecode.domain;
-                    domainSelect.appendChild(optBasecode);
-                }
+                // Opción Basecode
+                const optBasecode = document.createElement('option');
+                optBasecode.value = `https://${BRANDS.basecode.domain}/${BRANDS.basecode.eventFolder}`;
+                optBasecode.innerText = BRANDS.basecode.domain;
+                domainSelect.appendChild(optBasecode);
+
+                // Seleccionar por defecto la del brand actual
+                const currentVal = `https://${brand.domain}/${brand.eventFolder}`;
+                domainSelect.value = currentVal;
             }
 
             // Restricción de herramientas de gestión

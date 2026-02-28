@@ -16,7 +16,7 @@ const BRANDS = {
         logo: "./assets/logo_basecode.png",
         poweredBy: "POWERED BY BASECODE CREATIVESTUDIO",
         eventFolder: "comuniones2026",
-        firebaseCollection: "datos_protagonistas_basecode",
+        firebaseCollection: "datos_protagonistas", // Usamos la misma por ahora para compatibilidad con el creador minificado
         managementTools: false
     }
 };
@@ -25,8 +25,14 @@ function getCurrentBrand() {
     const host = window.location.hostname;
     const path = window.location.pathname;
 
+    // Si estamos en local (localhost o file://), usamos Pujalte por defecto a menos que estemos en una carpeta específica
+    if (!host || host === 'localhost' || host === '127.0.0.1') {
+        if (path.includes('basecode') || path.includes('mi_primera_comunion')) return BRANDS.basecode;
+        return BRANDS.pujalte;
+    }
+
     if (host.includes('pujalte')) return BRANDS.pujalte;
-    if (host.includes('basecode') || path.includes('mi_primera_comunion')) return BRANDS.basecode;
+    if (host.includes('basecode')) return BRANDS.basecode;
 
     return BRANDS.pujalte;
 }
