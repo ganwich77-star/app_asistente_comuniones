@@ -10,6 +10,9 @@ import { initSecurity } from './security.js';
 
 // Importar la configuración generada
 import { config } from './config.js';
+import { getCurrentBrand } from './brands.js';
+
+const BRAND = getCurrentBrand();
 
 // --- CAPTURA DE ID DEL EVENTO ---
 const getEventIdFromUrl = () => {
@@ -170,24 +173,24 @@ const hydrateConfigFromFirestore = async (eventId) => {
             eventSnap = await getDoc(doc(db, "_internal_temp", eventId));
         }
 
-        // FALLBACK 2: Colección principal de nuevos eventos del formulario de fotógrafo
+        // FALLBACK 2: Colección principal definida por la marca
         if (!eventSnap.exists()) {
-            console.log("🔍 No encontrado en _internal_temp, buscando en datos_protagonistas...");
-            eventSnap = await getDoc(doc(db, "datos_protagonistas", eventId));
+            console.log(`🔍 Buscando en colección de marca: ${BRAND.firebaseCollection}...`);
+            eventSnap = await getDoc(doc(db, BRAND.firebaseCollection, eventId));
         }
 
         // FALLBACK 3: Búsqueda por slug/id guardado como campo en el documento
         if (!eventSnap.exists()) {
-            console.log("🔍 Intentando búsqueda por campo slug/id en datos_protagonistas...");
+            console.log(`🔍 Intentando búsqueda por campo slug/id en ${BRAND.firebaseCollection}...`);
             const { getDocs: _getDocs, collection: _col, query: _q, where: _w } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
 
-            const slugQuery = _q(_col(db, "datos_protagonistas"), _w("slug", "==", eventId));
+            const slugQuery = _q(_col(db, BRAND.firebaseCollection), _w("slug", "==", eventId));
             const slugSnap = await _getDocs(slugQuery);
             if (!slugSnap.empty) {
                 eventSnap = slugSnap.docs[0];
                 console.log("✅ Encontrado por slug:", eventSnap.id);
             } else {
-                const idQuery = _q(_col(db, "datos_protagonistas"), _w("id", "==", eventId));
+                const idQuery = _q(_col(db, BRAND.firebaseCollection), _w("id", "==", eventId));
                 const idSnap = await _getDocs(idQuery);
                 if (!idSnap.empty) {
                     eventSnap = idSnap.docs[0];
@@ -199,9 +202,9 @@ const hydrateConfigFromFirestore = async (eventId) => {
         // FALLBACK 4: Búsqueda FUZZY por nombre normalizado (para URLs ya compartidas como ?id=leyreydaira)
         // Normaliza: minúsculas + sin tildes + sin guiones/espacios/underscores → compara con ID del doc
         if (!eventSnap.exists()) {
-            console.log("🔍 Búsqueda fuzzy por nombre normalizado (URL compartida)...");
+            console.log(`🔍 Búsqueda fuzzy por nombre normalizado en ${BRAND.firebaseCollection}...`);
             const { getDocs: _getDocs2, collection: _col2 } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-            const allSnap = await _getDocs2(_col2(db, "datos_protagonistas"));
+            const allSnap = await _getDocs2(_col2(db, BRAND.firebaseCollection));
 
             // Normalizar el ID de la URL: todo junto, sin separadores, sin tildes, minúsculas
             const normalize = (s) => s.toLowerCase()
@@ -610,6 +613,23 @@ const populateStaticData = () => {
         document.getElementById('bank-concept').innerText = `Comunión de ${config.protagonista.nombre}`;
     }
 
+    // --- DINAMIZAR MARCA (LOGO Y POWERED BY) ---
+    const brandLogos = document.querySelectorAll('.footer-logo-style, #camera-intro-logo, #marketing-gift-form img');
+    brandLogos.forEach(logo => {
+        if (logo) logo.src = BRAND.logo;
+    });
+
+    const poweredByElements = document.querySelectorAll('footer p.text-\\[10px\\]');
+    poweredByElements.forEach(el => {
+        if (el.innerText.includes('Powered by')) {
+            el.innerHTML = `Powered by <span class="font-bold text-emerald-700">${BRAND.name}</span>`;
+        }
+    });
+
+    const sloganElement = document.querySelector('footer p.font-cursive');
+    if (sloganElement && BRAND.id === 'basecode') {
+        sloganElement.innerText = '"Basecode: Tu plataforma de eventos PRO"';
+    }
 };
 
 const replacePlaceholders = () => {

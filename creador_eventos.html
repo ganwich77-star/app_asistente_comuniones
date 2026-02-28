@@ -1187,7 +1187,10 @@
     <!-- UTILIDADES UI PREMIUM (LIMPIO) -->
     <!-- DYNAMIC BRANDING LOGIC -->
     <script type="module">
-        import { getCurrentBrand, BRANDS } from './js/brands.js';
+        import { getCurrentBrand, BRANDS, enforceManagementSecurity } from './js/brands.js';
+
+        // Ejecutar protección de herramientas
+        enforceManagementSecurity();
 
         function applyBranding() {
             const brand = getCurrentBrand();
