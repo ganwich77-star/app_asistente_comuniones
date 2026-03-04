@@ -9,3 +9,7 @@ const app = initializeApp(config.firebase);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+// Alias para compatibilidad con código ofuscado/compilado (superadmin.js, fotografo.js)
+export const d = db;
+export const s = storage;
