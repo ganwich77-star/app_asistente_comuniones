@@ -2666,11 +2666,16 @@ window.loadSettings = () => {
                 regaloSection.style.display = 'block';
 
                 const textoCortesiaEl = document.getElementById('regalo-texto-cortesia');
+                const hasGiftDataOptions = (c.ibanVisible === true) || (c.bizumVisible === true) || (c.giftListVisible === true);
+
                 if (textoCortesiaEl) {
-                    if (hasGiftOptions) {
-                        textoCortesiaEl.innerHTML = `"Vuestra presencia es nuestro mejor regalo, pero si deseáis tener un detalle con ${config.protagonista.nombre} aquí tenéis sus datos."`;
+                    const textoInolvidable = `"Vuestra presencia es, sin duda, el mejor regalo que ${config.protagonista.nombre} podría recibir. Compartir este día con vosotros es lo único que necesitamos para que sea inolvidable."`;
+                    const textoConDatos = `"Vuestra presencia es nuestro mejor regalo, pero si deseáis tener un detalle con ${config.protagonista.nombre} aquí tenéis sus datos."`;
+
+                    if (c.menuPaymentVisible === true || !hasGiftDataOptions) {
+                        textoCortesiaEl.innerHTML = textoInolvidable;
                     } else {
-                        textoCortesiaEl.innerHTML = `"Vuestra presencia es, sin duda, el mejor regalo que ${config.protagonista.nombre} podría recibir. Compartir este día con vosotros es lo único que necesitamos para que sea inolvidable."`;
+                        textoCortesiaEl.innerHTML = textoConDatos;
                     }
                 }
             }

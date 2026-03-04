@@ -2176,9 +2176,13 @@ window.loadSettings = () => {
                 regaloSection.classList.remove('hidden');
                 const textoCortesiaEl = document.getElementById('regalo-texto-cortesia');
                 if (textoCortesiaEl) {
-                    textoCortesiaEl.innerHTML = hasGiftOptions
-                        ? `"Vuestra presencia es nuestro mejor regalo, pero si deseáis tener un detalle con ${config.protagonista.nombre} aquí tenéis sus datos."`
-                        : `"Vuestra presencia es, sin duda, el mejor regalo que ${config.protagonista.nombre} podría recibir. Compartir este día con vosotros es lo único que necesitamos para que sea inolvidable."`;
+                    const textoInolvidable = `"Vuestra presencia es, sin duda, el mejor regalo que ${config.protagonista.nombre} podría recibir. Compartir este día con vosotros es lo único que necesitamos para que sea inolvidable."`;
+
+                    if (c.menuPaymentVisible || !hasGiftOptions) {
+                        textoCortesiaEl.innerHTML = textoInolvidable;
+                    } else {
+                        textoCortesiaEl.innerHTML = `"Vuestra presencia es nuestro mejor regalo, pero si deseáis tener un detalle con ${config.protagonista.nombre} aquí tenéis sus datos."`;
+                    }
                 }
             }
 
