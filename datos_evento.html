@@ -11,7 +11,7 @@
         rel="stylesheet">
     <link rel="icon" type="image/webp" href="./assets/corazon_01.webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-    <script type="module" src="js/datos_evento.js"></script>
+
     <style>
         :root {
             --bg: #111827;
@@ -368,9 +368,7 @@
             }
         }
     </style>
-    <script type="module" crossorigin src="./js/datos_evento.js"></script>
-    <link rel="modulepreload" crossorigin href="./js/modulepreload-polyfill.js">
-    <link rel="modulepreload" crossorigin href="./js/config.js">
+    <script type="module" src="./js/datos_evento.js"></script>
 </head>
 
 <body>
@@ -421,6 +419,30 @@
 
 
             </div>
+
+            <script>
+                // Lógica de emergencia directa en el HTML
+                document.addEventListener('DOMContentLoaded', () => {
+                    const check = document.getElementById('legal-check');
+                    const btn = document.getElementById('btn-start');
+                    const gate = document.getElementById('legal-gate');
+                    const form = document.getElementById('mainForm');
+                    
+                    if (check && btn) {
+                        check.addEventListener('change', () => {
+                            btn.disabled = !check.checked;
+                            btn.style.opacity = check.checked ? '1' : '0.3';
+                            btn.style.transform = check.checked ? 'scale(1)' : 'scale(0.95)';
+                        });
+                        
+                        btn.addEventListener('click', () => {
+                            gate.style.display = 'none';
+                            form.style.display = 'block';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        });
+                    }
+                });
+            </script>
 
             <form id="mainForm" style="display: none;" novalidate>
                 <h1 style="margin-bottom: 20px; font-size: 2.8rem; text-align: center;">¡Hola!</h1>

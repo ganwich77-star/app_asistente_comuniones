@@ -58,7 +58,7 @@ export const config = {
         email: "apps@pujaltefotografia.es"
     }
 };
-
+export { config };
 export const c = config;
 export const g = config;
 export const _ = config;
