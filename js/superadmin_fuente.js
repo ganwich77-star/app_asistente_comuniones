@@ -296,7 +296,7 @@ window.copyFormLink = (photoId) => {
 
 window.openRegistrationForm = (photoId) => {
     const baseUrl = window.location.href.split('super_admin.html')[0];
-    const link = `${baseUrl}acceso_fotografo.html?f=${photoId}`;
+    const link = `${baseUrl}datos_evento.html?f=${photoId}`;
     window.open(link, '_blank');
 };
 
