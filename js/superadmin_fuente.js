@@ -1,7 +1,7 @@
 import { db, storage } from './firebase_init.js';
 import { collection, getDocs, getDoc, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-import { config } from './config.js';
+import config from './config.js';
 
 async function loadData() {
     const list = document.getElementById('photographers-list');
