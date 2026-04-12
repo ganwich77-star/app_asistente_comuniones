@@ -129,17 +129,28 @@ window.openEventsViewer = async (photoId, photoName, photoLogo) => {
     document.body.style.overflow = 'hidden';
 
     try {
-        // SOLO COLECCIÓN EVENTOS (FILTRADO)
-        const snap = await getDocs(collection(db, "eventos"));
+        const collections = ['eventos', '_internal_temp', 'datos_protagonistas'];
         currentViewerEvents = [];
-        snap.forEach(d => {
-            const ev = d.data();
-            // Solo si pertenece al fotógrafo Y tiene nombre real Y no es basura de migración
-            const isRealEvent = ev.protagonistName && !d.id.includes('MIGRATED_') && !d.id.includes('SUBMISSION_') && !d.id.includes('_');
-            if (ev.photographerId === photoId && isRealEvent) {
-                currentViewerEvents.push({ ...ev, id: d.id, _col: "eventos" });
-            }
-        });
+
+        for (const col of collections) {
+            const snap = await getDocs(collection(db, col));
+            snap.forEach(d => {
+                const ev = d.data();
+                if (ev.photographerId === photoId) {
+                    // Limpieza: Ignorar si no tiene nombre (basura)
+                    const pName = ev.protagonistName || ev.nombre || ev.protagonista;
+                    if (pName && pName.length > 1) {
+                        currentViewerEvents.push({ 
+                            ...ev, 
+                            id: d.id, 
+                            _col: col,
+                            _isNew: col === 'datos_protagonistas'
+                        });
+                    }
+                }
+            });
+        }
+        
         currentViewerEvents.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         renderViewerGrid(currentViewerEvents);
     } catch (e) { console.error(e); }
@@ -211,15 +222,24 @@ function renderViewerGrid(events) {
 
     grid.innerHTML = events.map(ev => {
         const photos = ev.introPhotos || [];
-        const f1 = photos[0] || ev.introFoto1 || ev.foto1 || 'assets/images/new_lobo_black.webp';
-        const f2 = photos[1] || ev.introFoto2 || ev.foto2 || 'assets/images/new_lobo_black.webp';
-        const f3 = photos[2] || ev.introFoto3 || ev.foto3 || 'assets/images/new_lobo_black.webp';
+        const f1 = photos[0] || ev.introFoto1 || ev.foto1 || ev.url_foto_1 || 'assets/images/new_lobo_black.webp';
+        const f2 = photos[1] || ev.introFoto2 || ev.foto2 || ev.url_foto_2 || 'assets/images/new_lobo_black.webp';
+        const f3 = photos[2] || ev.introFoto3 || ev.foto3 || ev.url_foto_3 || 'assets/images/new_lobo_black.webp';
+
+        const name = ev.protagonistName || ev.nombre || ev.protagonista || ev.id;
+        const isNew = ev._isNew || ev._col === 'datos_protagonistas';
 
         const eventUrl = `https://apps.pujaltefotografia.es/comuniones2026/${ev.id}/index.html?id=${ev.id}`;
         const editUrl = `creador_eventos.html?e=${ev.id}&c=${ev._col}`;
 
         return `
-        <div class="glass p-4 rounded-3xl flex flex-col gap-4 hover:border-emerald-500/30 transition group scale-up bg-slate-900/40">
+        <div class="glass p-4 rounded-3xl flex flex-col gap-4 hover:border-emerald-500/30 transition group scale-up bg-slate-900/40 relative">
+            ${isNew ? `
+                <div class="absolute -top-2 -right-2 bg-emerald-500 text-black text-[9px] font-black px-3 py-1 rounded-full shadow-2xl z-20 animate-bounce">
+                    ✨ NUEVO REGISTRO
+                </div>
+            ` : ''}
+            
             <!-- Cuadrícula de fotos (Mini Galería) -->
             <div class="grid grid-cols-3 gap-2 h-32">
                 <div class="col-span-2 h-full rounded-xl overflow-hidden bg-slate-800 border border-white/5">
@@ -236,10 +256,10 @@ function renderViewerGrid(events) {
             </div>
 
             <div class="px-1">
-                <h4 class="font-bold text-base leading-tight group-hover:text-emerald-400 transition truncate">${ev.protagonistName || ev.id}</h4>
+                <h4 class="font-bold text-base leading-tight group-hover:text-emerald-400 transition truncate">${name}</h4>
                 <div class="flex justify-between items-center mt-2">
                     <span class="text-[8px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono uppercase">${ev.id}</span>
-                    <span class="text-[8px] text-white/30 uppercase font-bold tracking-widest">${ev.eventDate || ''}</span>
+                    <span class="text-[8px] text-white/30 uppercase font-bold tracking-widest">${ev.eventDate || ev.fecha || ''}</span>
                 </div>
             </div>
 
